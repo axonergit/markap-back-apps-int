@@ -40,8 +40,8 @@ public class MarkapBeApplication {
 			RoleEntity roleUser = RoleEntity.builder().roleEnum(RoleEnum.USUARIO).permissionSet(Set.of(readPermission,suscribePermission)).build();
 			RoleEntity roleAdmin = RoleEntity.builder().roleEnum(RoleEnum.ADMIN).permissionSet(Set.of(readPermission,suscribePermission,createPermission,deletePermission)).build();
 
-			UserEntity userMaestro = UserEntity.builder().username("master").password("4321").accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true).roles(Set.of(roleAdmin)).build();
-			UserEntity userComun = UserEntity.builder().username("usuario").password("1234").accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true).roles(Set.of(roleUser)).build();
+			UserEntity userMaestro = UserEntity.builder().username("master").password("$2a$10$cTxbkyr.IN.hn/m5iraiCeIo4XogBvctfbEFcWDdgFx/35HX5ynAC").isEnabled(true).accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true).roles(Set.of(roleAdmin)).build();
+			UserEntity userComun = UserEntity.builder().username("usuario").password("$2a$10$mi4iWTtebYuKT.jApPXKcuBeYI3yiftz3hIFskaJ8VXMbsT0Wn7R2").isEnabled(true).accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true).roles(Set.of(roleUser)).build();
 
 			userRepository.saveAll(List.of(userMaestro,userComun));
 		};
