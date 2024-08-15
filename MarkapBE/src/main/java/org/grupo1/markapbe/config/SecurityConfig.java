@@ -1,6 +1,7 @@
 package org.grupo1.markapbe.config;
 
 
+import org.grupo1.markapbe.service.UserDetailServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,6 +13,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,15 +35,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
-                    http.requestMatchers(HttpMethod.GET, "/test/inseguro").permitAll();
-                    http.requestMatchers(HttpMethod.GET, "/test/seguro").hasAuthority("CREATE");
 
                     http.anyRequest().permitAll();
                 })
+                .headers( headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .build();
     }
 
@@ -50,22 +52,13 @@ public class SecurityConfig {
 
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider(UserDetailServiceImpl userDetailService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
-        provider.setUserDetailsService(userDetailsService());
+        provider.setUserDetailsService(userDetailService);
         return provider;
     }
 
-    public UserDetailsService userDetailsService() {
-        UserDetails usuario1 = User.withUsername("sebyex").password("1234").roles("ADMIN").authorities("READ","CREATE").build();
-        UserDetails usuario2 = User.withUsername("juana").password("1234").roles("USER").authorities("READ").build();
-        List<UserDetails> usuarios = new ArrayList<UserDetails>();
-        usuarios.add(usuario1);
-        usuarios.add(usuario2);
-
-        return new InMemoryUserDetailsManager(usuarios);
-    }
 
 
 

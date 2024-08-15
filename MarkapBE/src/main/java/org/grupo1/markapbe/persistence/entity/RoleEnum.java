@@ -1,2 +1,7 @@
-package org.grupo1.markapbe.persistence.entity;public enum RoleEnum {
+package org.grupo1.markapbe.persistence.entity;
+
+public enum RoleEnum {
+    USUARIO,
+    ADMIN
+
 }
