@@ -1,25 +1,25 @@
-package org.grupo1.markapbe.controllers;
+package org.grupo1.markapbe.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/method")
 @PreAuthorize("denyAll()")
 public class TestAuthController {
 
 
 
+    @Operation( description = "ESTE METODO ES PARA PROBAR EL GET.")
     @GetMapping("/get")
-    @PreAuthorize("hasAuthority('READ')")
+    @PreAuthorize("hasRole('ADMIN')")
     public String helloGet(){
         return "Hello World - GET";
     }
 
-
     @PostMapping("/post")
-    @PreAuthorize("hasAuthority('CREATE')")
     public String helloPost(){
         return "Hello World - POST";
     }
