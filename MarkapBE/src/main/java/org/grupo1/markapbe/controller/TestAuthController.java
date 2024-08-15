@@ -7,14 +7,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/method")
-@PreAuthorize("denyAll()")
 public class TestAuthController {
 
 
 
     @Operation( description = "ESTE METODO ES PARA PROBAR EL GET.")
     @GetMapping("/get")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('READ')")
     public String helloGet(){
         return "Hello World - GET";
     }

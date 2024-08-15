@@ -49,8 +49,8 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
-
-                    http.anyRequest().permitAll();
+                    http.requestMatchers(HttpMethod.POST,"/auth/**").permitAll();
+                    http.anyRequest().authenticated();
                 })
                 .headers( headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
