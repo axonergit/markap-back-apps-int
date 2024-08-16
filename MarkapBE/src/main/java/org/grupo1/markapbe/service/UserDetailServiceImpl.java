@@ -4,6 +4,7 @@ import org.grupo1.markapbe.controller.dto.AuthCreateUserRequest;
 import org.grupo1.markapbe.controller.dto.AuthLoginRequest;
 import org.grupo1.markapbe.controller.dto.AuthResponse;
 import org.grupo1.markapbe.persistence.entity.RoleEntity;
+import org.grupo1.markapbe.persistence.entity.RoleEnum;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.RoleRepository;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
@@ -64,7 +65,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accesstoken = jwtUtils.createToken(authentication);
-        AuthResponse authResponse = new AuthResponse(username,password, accesstoken,true);
+        AuthResponse authResponse = new AuthResponse(username,"Login successful!", accesstoken,true);
         return authResponse;
     }
 
@@ -84,10 +85,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
     public AuthResponse createUser(AuthCreateUserRequest authCreateUserRequest) {
         String username = authCreateUserRequest.username();
         String password = authCreateUserRequest.password();
-        List<String> roleRequest = authCreateUserRequest.roleRequest().roleListName();
+        // List<String> roleRequest = authCreateUserRequest.roleRequest().roleListName();
+        // Set<RoleEntity> roleEntitySet = roleRepository.findRoleEntitiesByRoleEnumIn(roleRequest).stream().collect(Collectors.toSet());
 
-        Set<RoleEntity> roleEntitySet = roleRepository.findRoleEntitiesByRoleEnumIn(roleRequest).stream().collect(Collectors.toSet());
-
+        Set<RoleEntity> roleEntitySet = roleRepository.findRoleEntityByRoleEnum(RoleEnum.USUARIO).stream().collect(Collectors.toSet());
         if (roleEntitySet.isEmpty()){
             throw new IllegalArgumentException("Los roles especificados no existen.");
         }
