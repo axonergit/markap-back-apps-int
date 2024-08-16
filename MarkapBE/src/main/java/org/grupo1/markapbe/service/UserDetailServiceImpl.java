@@ -3,10 +3,9 @@ package org.grupo1.markapbe.service;
 import org.grupo1.markapbe.controller.dto.AuthCreateUserRequest;
 import org.grupo1.markapbe.controller.dto.AuthLoginRequest;
 import org.grupo1.markapbe.controller.dto.AuthResponse;
-import org.grupo1.markapbe.persistence.entity.RoleEntity;
-import org.grupo1.markapbe.persistence.entity.RoleEnum;
-import org.grupo1.markapbe.persistence.entity.UserEntity;
+import org.grupo1.markapbe.persistence.entity.*;
 import org.grupo1.markapbe.persistence.repository.RoleRepository;
+import org.grupo1.markapbe.persistence.repository.UserProfileRepository;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.grupo1.markapbe.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +39,9 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private RoleRepository roleRepository;
 
     @Autowired
+    private UserProfileRepository userProfileRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -48,12 +50,11 @@ public class UserDetailServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findUserEntityByUsername(username).orElseThrow(() -> new UsernameNotFoundException("El usuario" + username + "no existe"));
-        System.out.println(userEntity.getUsername() + userEntity.getRoles() + userEntity.isEnabled());
         List<SimpleGrantedAuthority> grantedAuthorityList = new ArrayList<>();
         userEntity.getRoles().forEach(role -> grantedAuthorityList.add( new SimpleGrantedAuthority("ROLE_".concat(role.getRoleEnum().name()))));
         userEntity.getRoles().stream().flatMap(role -> role.getPermissionSet().stream()).forEach(permissionEntity -> grantedAuthorityList.add(new SimpleGrantedAuthority(permissionEntity.getName())));
 
-        return new User(userEntity.getUsername(),userEntity.getPassword(),userEntity.isEnabled(), userEntity.isAccountNoExpired(),userEntity.isCredentialNoExpired(),userEntity.isAccountNoLocked(),grantedAuthorityList);
+        return new CustomUserDetails(userEntity.getId(), userEntity.getUsername(),userEntity.getPassword(),grantedAuthorityList);
     }
 
     public AuthResponse loginUser(AuthLoginRequest authLoginRequest) {
@@ -85,6 +86,9 @@ public class UserDetailServiceImpl implements UserDetailsService {
     public AuthResponse createUser(AuthCreateUserRequest authCreateUserRequest) {
         String username = authCreateUserRequest.username();
         String password = authCreateUserRequest.password();
+        String fullName = authCreateUserRequest.fullName();
+        String email = authCreateUserRequest.email();
+
         // List<String> roleRequest = authCreateUserRequest.roleRequest().roleListName();
         // Set<RoleEntity> roleEntitySet = roleRepository.findRoleEntitiesByRoleEnumIn(roleRequest).stream().collect(Collectors.toSet());
 
@@ -96,6 +100,9 @@ public class UserDetailServiceImpl implements UserDetailsService {
         UserEntity userEntity = UserEntity.builder().username(username).password(passwordEncoder.encode(password)).roles(roleEntitySet).isEnabled(true).accountNoLocked(true).accountNoExpired(true).credentialNoExpired(true).build();
 
         UserEntity userCreated = userRepository.save(userEntity);
+
+        UserProfileEntity userProfileEntity = UserProfileEntity.builder().email(email).fullName(fullName).user(userCreated).build();
+        userProfileRepository.save(userProfileEntity);
 
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
 
