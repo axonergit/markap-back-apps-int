@@ -49,7 +49,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity userEntity = userRepository.findUserEntityByUsername(username).orElseThrow(() -> new UsernameNotFoundException("El usuario" + username + "no existe"));
+        UserEntity userEntity = userRepository.findUserEntityByUsername(username).orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + " no existe"));
         List<SimpleGrantedAuthority> grantedAuthorityList = new ArrayList<>();
         userEntity.getRoles().forEach(role -> grantedAuthorityList.add( new SimpleGrantedAuthority("ROLE_".concat(role.getRoleEnum().name()))));
         userEntity.getRoles().stream().flatMap(role -> role.getPermissionSet().stream()).forEach(permissionEntity -> grantedAuthorityList.add(new SimpleGrantedAuthority(permissionEntity.getName())));
@@ -74,10 +74,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
     public Authentication authenticate(String username, String password) {
         UserDetails userDetails = this.loadUserByUsername(username);
         if (userDetails == null) {
-            throw new BadCredentialsException("Invalid username or password");
+            throw new BadCredentialsException("El usuario" + username + " no existe.");
         }
         if (!passwordEncoder.matches(password,userDetails.getPassword())) {
-            throw  new BadCredentialsException("Invalid password.");
+            throw  new BadCredentialsException("La contraseña es incorrecta.");
         }
 
         return new UsernamePasswordAuthenticationToken(username,userDetails.getPassword(),userDetails.getAuthorities());

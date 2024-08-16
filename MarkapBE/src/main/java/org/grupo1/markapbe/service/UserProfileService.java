@@ -10,11 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class UserProfileService {
-
 
 
     @Autowired
@@ -27,7 +24,7 @@ public class UserProfileService {
 
         UserEntity userEntity = userRepository.findUserEntityByUsername(username).orElseThrow(() -> new UsernameNotFoundException("No se encontro el usuario en la base de datos."));
 
-        UserProfileEntity  userProfileEntity = userProfileRepository.findUserProfileEntityByUser(userEntity).orElseThrow(() -> new UsernameNotFoundException("No fue posible obtener los detalles del usuario. (Si usaste las cuentas por defecto estas no tienen cargados los detalles)"));
-        return new UserDetailsResponse(userProfileEntity.getFullName(),userProfileEntity.getEmail());
+        UserProfileEntity userProfileEntity = userProfileRepository.findUserProfileEntityByUser(userEntity).orElseThrow(() -> new UsernameNotFoundException("No fue posible obtener los detalles del usuario. (Si usaste las cuentas por defecto estas no tienen cargados los detalles)"));
+        return new UserDetailsResponse(userProfileEntity.getFullName(), userProfileEntity.getEmail());
     }
 }

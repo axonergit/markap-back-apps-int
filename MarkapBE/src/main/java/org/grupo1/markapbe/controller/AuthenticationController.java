@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import org.grupo1.markapbe.controller.dto.AuthCreateUserRequest;
 import org.grupo1.markapbe.controller.dto.AuthLoginRequest;
 import org.grupo1.markapbe.controller.dto.AuthResponse;
+import org.grupo1.markapbe.controller.dto.ErrorResponseDTO;
 import org.grupo1.markapbe.service.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,14 +26,23 @@ public class AuthenticationController {
 
 
     @PostMapping("/sign-up")
-    public ResponseEntity<AuthResponse> register(@RequestBody @Valid AuthCreateUserRequest authCreateUserRequest){
-        return new ResponseEntity<>(this.userDetailService.createUser(authCreateUserRequest),HttpStatus.CREATED);
+    public ResponseEntity<?> register(@RequestBody @Valid AuthCreateUserRequest authCreateUserRequest){
+
+        try {
+        return new ResponseEntity<>(this.userDetailService.createUser(authCreateUserRequest),HttpStatus.CREATED);}
+        catch (Exception ex) {
+            return new ResponseEntity<>(new ErrorResponseDTO(ex.getMessage()),HttpStatus.UNAUTHORIZED);
+        }
     }
 
 
 
     @PostMapping("/log-in")
-    public ResponseEntity<AuthResponse> login(@RequestBody @Valid AuthLoginRequest userRequest) {
-        return new ResponseEntity<>(this.userDetailService.loginUser(userRequest), HttpStatus.OK);
+    public ResponseEntity<?> login(@RequestBody @Valid AuthLoginRequest userRequest) {
+        try {
+        return new ResponseEntity<>(this.userDetailService.loginUser(userRequest), HttpStatus.OK);}
+        catch (Exception ex) {
+            return new ResponseEntity<>(new ErrorResponseDTO(ex.getMessage()),HttpStatus.UNAUTHORIZED);
+        }
     }
 }

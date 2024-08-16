@@ -9,7 +9,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface UserProfileRepository extends CrudRepository<UserProfileEntity,Long> {
+public interface UserProfileRepository extends CrudRepository<UserProfileEntity, Long> {
 
     Optional<UserProfileEntity> findUserProfileEntityByUser(UserEntity user);
 
