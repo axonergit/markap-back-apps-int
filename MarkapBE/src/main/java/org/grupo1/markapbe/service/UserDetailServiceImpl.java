@@ -23,7 +23,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,8 +88,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
     public AuthResponse createUser(AuthCreateUserRequest authCreateUserRequest) {
         String username = authCreateUserRequest.username();
         String password = authCreateUserRequest.password();
-        String fullName = authCreateUserRequest.fullName();
+        String name = authCreateUserRequest.name();
+        String lastName = authCreateUserRequest.lastName();
         String email = authCreateUserRequest.email();
+        LocalDate birthDate = authCreateUserRequest.birthDate();
 
         // List<String> roleRequest = authCreateUserRequest.roleRequest().roleListName();
         // Set<RoleEntity> roleEntitySet = roleRepository.findRoleEntitiesByRoleEnumIn(roleRequest).stream().collect(Collectors.toSet());
@@ -101,7 +105,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
         UserEntity userCreated = userRepository.save(userEntity);
 
-        UserProfileEntity userProfileEntity = UserProfileEntity.builder().email(email).fullName(fullName).user(userCreated).build();
+        UserProfileEntity userProfileEntity = UserProfileEntity.builder().email(email).name(name).lastName(lastName).birthDate(birthDate).user(userCreated).build();
         userProfileRepository.save(userProfileEntity);
 
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
