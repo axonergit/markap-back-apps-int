@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -22,9 +25,14 @@ public class UserProfileEntity {
     @Column(name = "email",updatable = false,unique = true)
     private String email;
 
-    @Column(name = "full_name")
-    private String fullName;
+    @Column(name = "name")
+    private String name;
 
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
     @OneToOne
     @JoinColumn(name = "user_id")

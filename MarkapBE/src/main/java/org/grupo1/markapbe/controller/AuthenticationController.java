@@ -2,9 +2,9 @@ package org.grupo1.markapbe.controller;
 
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.grupo1.markapbe.controller.dto.AuthCreateUserRequest;
 import org.grupo1.markapbe.controller.dto.AuthLoginRequest;
-import org.grupo1.markapbe.controller.dto.AuthResponse;
 import org.grupo1.markapbe.controller.dto.ErrorResponseDTO;
 import org.grupo1.markapbe.service.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
