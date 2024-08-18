@@ -1,13 +1,11 @@
 # markap-back-apps-int
-
+```mermaid
 erDiagram
     USER ||--|| USER-PROFILE : tiene
     USER ||--|{ USER-ROLES : posee
     ROLES ||--|{ USER-ROLES : posee
     ROLES ||--|{ ROLES-PERMISSION : posee
     PERMISSION ||--|{ ROLES-PERMISSION : posee
-
-
 
     USER ||--|| LIKE : likea
     LIKE ||--|| PRODUCTO : esLikeado
@@ -39,13 +37,13 @@ erDiagram
         string roleName
     }
 
-    ROLES-PERMISSION{
+    ROLES-PERMISSION {
         int idRolePermission
         int idPermission
         int idRol
     }
 
-    PERMISSION{
+    PERMISSION {
         int idPermission
         string permissionName
     }
