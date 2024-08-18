@@ -3,6 +3,7 @@ package org.grupo1.markapbe.persistence.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ public class ProductEntity {
     private String descripcion;
 
     @Column(name = "precio")
-    private Float precio;
+    private BigDecimal precio;
 
     @Column(name = "detalles")
     private String detalles;
