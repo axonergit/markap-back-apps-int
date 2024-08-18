@@ -1,8 +1,7 @@
 package org.grupo1.markapbe.service;
 
-import org.grupo1.markapbe.controller.dto.ProductRequestDTO;
-import org.grupo1.markapbe.controller.dto.ProductResponseDTO;
-import org.grupo1.markapbe.persistence.entity.CategoryEntity;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.grupo1.markapbe.controller.dto.ProductDTO;
 import org.grupo1.markapbe.persistence.entity.ProductEntity;
 import org.grupo1.markapbe.persistence.repository.CategoryRepository;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
@@ -23,33 +22,36 @@ public class ProductService {
     @Autowired
     private CategoryRepository categoriaRepository;
 
-    public List<ProductResponseDTO> getAllProductos() {
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    public List<ProductDTO> getAllProductos() {
         return productoRepository.findAll().stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    public Optional<ProductResponseDTO> getProductoById(Long id) {
+    public Optional<ProductDTO> getProductoById(Long id) {
         return productoRepository.findById(id)
                 .map(this::convertToDto);
     }
 
-    public ProductResponseDTO createProducto(ProductRequestDTO productoRequestDTO) {
+    public ProductDTO createProducto(ProductDTO productoRequestDTO) {
         //CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.getIdCategoria())
                // .orElseThrow(() -> new RuntimeException("Categoria not found"));
         ProductEntity producto = convertToEntity(productoRequestDTO);  // agregar categoria como parameto (,categoria)
         return convertToDto(productoRepository.save(producto));
     }
 
-    public Optional<ProductResponseDTO> updateProducto(Long id, ProductRequestDTO productoRequestDTO) {
+    public Optional<ProductDTO> updateProducto(Long id, ProductDTO productoRequestDTO) {
         return productoRepository.findById(id).map(producto -> {
             //CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.getIdCategoria())
                     //.orElseThrow(() -> new RuntimeException("Categoria not found"));
-            producto.setImagen(productoRequestDTO.getImagen());
-            producto.setDescripcion(productoRequestDTO.getDescripcion());
-            producto.setPrecio(productoRequestDTO.getPrecio());
-            producto.setDetalles(productoRequestDTO.getDetalles());
-            producto.setStock(productoRequestDTO.getStock());
+            producto.setImagen(productoRequestDTO.imagen());
+            producto.setDescripcion(productoRequestDTO.descripcion());
+            producto.setPrecio(productoRequestDTO.precio());
+            producto.setDetalles(productoRequestDTO.detalles());
+            producto.setStock(productoRequestDTO.stock());
             //producto.setCategoria(categoria);
             return convertToDto(productoRepository.save(producto));
         });
@@ -63,28 +65,12 @@ public class ProductService {
         return false;
     }
 
-    private ProductResponseDTO convertToDto(ProductEntity producto) {
-        return new ProductResponseDTO(
-                producto.getId(),
-                producto.getImagen(),
-                producto.getDescripcion(),
-                producto.getPrecio(),
-                producto.getDetalles(),
-                producto.getStock()
-                //producto.getCategoria().getNombreCategoria()
-        );
+    private ProductDTO convertToDto(ProductEntity producto) {
+        return objectMapper.convertValue(producto,ProductDTO.class);
     }
 
-    private ProductEntity convertToEntity(ProductRequestDTO dto) {    //Agregar como parámetro ( ,CategoryEntity categoria)
-        ProductEntity producto = new ProductEntity();
-        producto.setImagen(dto.getImagen());
-        producto.setDescripcion(dto.getDescripcion());
-        producto.setPrecio(dto.getPrecio());
-        producto.setDetalles(dto.getDetalles());
-        producto.setStock(dto.getStock());
-        //producto.setCategoria(categoria);
-
-        return producto;
+    private ProductEntity convertToEntity(ProductDTO dto) {    //Agregar como parámetro ( ,CategoryEntity categoria)
+        return objectMapper.convertValue(dto,ProductEntity.class);
     }
 }
 

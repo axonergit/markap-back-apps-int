@@ -1,7 +1,6 @@
 package org.grupo1.markapbe.controller;
 
-import org.grupo1.markapbe.controller.dto.ProductRequestDTO;
-import org.grupo1.markapbe.controller.dto.ProductResponseDTO;
+import org.grupo1.markapbe.controller.dto.ProductDTO;
 import org.grupo1.markapbe.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,28 +18,28 @@ public class ProductController {
     private ProductService productoService;
 
     @GetMapping
-    public List<ProductResponseDTO> getAllProductos() {
+    public List<ProductDTO> getAllProductos() {
         return productoService.getAllProductos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> getProductoById(@PathVariable Long id) {
-        Optional<ProductResponseDTO> producto = productoService.getProductoById(id);
+    public ResponseEntity<ProductDTO> getProductoById(@PathVariable Long id) {
+        Optional<ProductDTO> producto = productoService.getProductoById(id);
         return producto.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
    // Solo admin puede crear productos -->  @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductResponseDTO> createProducto(@RequestBody ProductRequestDTO productoRequestDTO) {
-        ProductResponseDTO producto = productoService.createProducto(productoRequestDTO);
+    public ResponseEntity<ProductDTO> createProducto(@RequestBody ProductDTO productoRequestDTO) {
+        ProductDTO producto = productoService.createProducto(productoRequestDTO);
         return ResponseEntity.ok(producto);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede actualizar productos
-    public ResponseEntity<ProductResponseDTO> updateProducto(@PathVariable Long id, @RequestBody ProductRequestDTO productoRequestDTO) {
-        Optional<ProductResponseDTO> updatedProducto = productoService.updateProducto(id, productoRequestDTO);
+    public ResponseEntity<ProductDTO> updateProducto(@PathVariable Long id, @RequestBody ProductDTO productoRequestDTO) {
+        Optional<ProductDTO> updatedProducto = productoService.updateProducto(id, productoRequestDTO);
         return updatedProducto.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
