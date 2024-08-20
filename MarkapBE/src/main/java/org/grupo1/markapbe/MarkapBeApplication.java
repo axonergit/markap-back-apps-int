@@ -82,7 +82,7 @@ public class MarkapBeApplication {
             userRepository.saveAll(List.of(userMaestro, userComun));
 
             //guardamos las cateorias en las tablas
-            categoryRepository.saveAll(List.of(category1, category2));
+            categoryRepository.saveAll(List.of(category1, category2,category3,category4,category5,category6,category7,category8,category9,category10,category11,category12));
         };
     }
 
