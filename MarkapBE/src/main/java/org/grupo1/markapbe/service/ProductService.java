@@ -2,6 +2,7 @@ package org.grupo1.markapbe.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.grupo1.markapbe.controller.dto.ProductDTO;
+import org.grupo1.markapbe.persistence.entity.CategoryEntity;
 import org.grupo1.markapbe.persistence.entity.ProductEntity;
 import org.grupo1.markapbe.persistence.repository.CategoryRepository;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
@@ -37,22 +38,22 @@ public class ProductService {
     }
 
     public ProductDTO createProducto(ProductDTO productoRequestDTO) {
-        //CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.getIdCategoria())
-               // .orElseThrow(() -> new RuntimeException("Categoria not found"));
+        CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.categoria().getId())
+                .orElseThrow(() -> new RuntimeException("Categoria not found"));
         ProductEntity producto = convertToEntity(productoRequestDTO);  // agregar categoria como parameto (,categoria)
         return convertToDto(productoRepository.save(producto));
     }
 
     public Optional<ProductDTO> updateProducto(Long id, ProductDTO productoRequestDTO) {
         return productoRepository.findById(id).map(producto -> {
-            //CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.getIdCategoria())
-                    //.orElseThrow(() -> new RuntimeException("Categoria not found"));
+            CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.categoria().getId())
+                    .orElseThrow(() -> new RuntimeException("Categoria not found"));
             producto.setImagen(productoRequestDTO.imagen());
             producto.setDescripcion(productoRequestDTO.descripcion());
             producto.setPrecio(productoRequestDTO.precio());
             producto.setDetalles(productoRequestDTO.detalles());
             producto.setStock(productoRequestDTO.stock());
-            //producto.setCategoria(categoria);
+            producto.setCategoria(categoria);
             return convertToDto(productoRepository.save(producto));
         });
     }
@@ -69,7 +70,7 @@ public class ProductService {
         return objectMapper.convertValue(producto,ProductDTO.class);
     }
 
-    private ProductEntity convertToEntity(ProductDTO dto) {    //Agregar como parámetro ( ,CategoryEntity categoria)
+    private ProductEntity convertToEntity(ProductDTO dto) {
         return objectMapper.convertValue(dto,ProductEntity.class);
     }
 }

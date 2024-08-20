@@ -44,8 +44,6 @@ public class MarkapBeApplication {
 
             userRepository.saveAll(List.of(userMaestro, userComun));
 
-            //guardamos las cateorias en las tablas
-
         };
     }
 

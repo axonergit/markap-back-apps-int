@@ -22,8 +22,8 @@ public class CategoryEntity {
     @Column(name = "nombre_categoria")
     private String nombreCategoria;
 
-    /*
+
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductEntity> productos;
-*/
+
 }
