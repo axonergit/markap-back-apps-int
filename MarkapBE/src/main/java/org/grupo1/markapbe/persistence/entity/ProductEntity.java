@@ -35,9 +35,8 @@ public class ProductEntity {
     @Column(name = "stock")
     private int stock;
 
-    /* PARA LABURAR DESPUES
     @ManyToOne
-    @JoinColumn(name = "idCategoria", nullable = false)
+    @JoinColumn(name = "id_categoria", nullable = false)
     private CategoryEntity categoria;
-*/
+
 }
