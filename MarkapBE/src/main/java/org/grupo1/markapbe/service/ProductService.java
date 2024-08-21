@@ -37,6 +37,15 @@ public class ProductService {
                 .map(this::convertToDto);
     }
 
+
+    public List<ProductDTO> getProductosByIdCategoria(Long id) {
+        return productoRepository.findByCategoria_id(id) // Busca los productos por id de categoría
+                .stream() // Convierte la lista a un Stream
+                .map(this::convertToDto) // Convierte cada ProductEntity a ProductDTO
+                .collect(Collectors.toList()); // Recoge el resultado en una lista
+    }
+
+
     public ProductDTO createProducto(ProductDTO productoRequestDTO) {
         CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.categoria().getId())
                 .orElseThrow(() -> new RuntimeException("Categoria not found"));

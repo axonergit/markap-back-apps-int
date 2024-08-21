@@ -29,6 +29,19 @@ public class ProductController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    //espero que funcione
+    @GetMapping("/categoria/{id}")
+    public ResponseEntity<List<ProductDTO>> getProductoByIdCategoria(@PathVariable Long id) {
+        List<ProductDTO> productos = productoService.getProductosByIdCategoria(id);
+
+        if (productos.isEmpty()) {
+            return ResponseEntity.notFound().build(); // Devuelve 404 si no hay productos
+        } else {
+            return ResponseEntity.ok(productos); // Devuelve 200 con la lista de productos
+        }
+    }
+
+
     @PostMapping
    // Solo admin puede crear productos -->  @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDTO> createProducto(@RequestBody ProductDTO productoRequestDTO) {
