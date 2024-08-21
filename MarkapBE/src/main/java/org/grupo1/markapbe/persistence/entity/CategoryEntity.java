@@ -1,5 +1,6 @@
 package org.grupo1.markapbe.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,7 +24,9 @@ public class CategoryEntity {
     private String nombreCategoria;
 
 
-    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "categoria")
+    @JsonManagedReference // maneja mucho mejor las relaciones bidireccionales, para tener en cuenta
+    //@JsonManagedReference y @JsonBackReference trabajan juntas para gestionar la serialización de relaciones bidireccionales, evitando ciclos infinitos.
     private Set<ProductEntity> productos;
 
 }

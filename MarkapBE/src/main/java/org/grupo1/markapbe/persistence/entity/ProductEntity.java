@@ -1,5 +1,6 @@
 package org.grupo1.markapbe.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,8 +36,10 @@ public class ProductEntity {
     @Column(name = "stock")
     private int stock;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)
+    @JsonBackReference  // maneja mucho mejor las relaciones bidireccionales, para tener en cuenta
+    //@JsonManagedReference y @JsonBackReference trabajan juntas para gestionar la serialización de relaciones bidireccionales, evitando ciclos infinitos.
     private CategoryEntity categoria;
 
 }
