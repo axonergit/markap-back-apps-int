@@ -4,16 +4,19 @@ import org.grupo1.markapbe.persistence.entity.ProductEntity;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.entity.UserProfileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
-/* no se que carajo hago aca
-    Optional<ProductEntity> findProductEntityById(Long id);
 
-    Optional<ProductEntity> findProductEntityByNombreContaining(String nombre);
-*/
+    List<ProductEntity> findByCategoria_id(Long idCategoria);
+
+
+    //Conviene tener un metodo para obtener los productos dado un nombre de categoria especifico?
+    //List<ProductEntity> findByidCategoria(Long id_categoria);
 }
