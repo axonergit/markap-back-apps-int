@@ -18,11 +18,11 @@ public class CarritoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "payment_status", nullable = false)
-    private boolean paymentStatus = false;
+    @Column(name = "payment_status")
+    private boolean paymentStatus;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private UserEntity User;
 
     @OneToMany
