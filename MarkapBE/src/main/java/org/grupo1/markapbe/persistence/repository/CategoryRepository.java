@@ -13,5 +13,4 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
 
-    //agregar lo necesario
 }
