@@ -17,7 +17,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "FavoriteProducts")
+@Table(name = "FavoriteProducts", uniqueConstraints = @UniqueConstraint(columnNames = {"id_user", "id_producto"}))
 public class FavoriteProductsEntity {
 
     @Id
