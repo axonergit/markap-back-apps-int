@@ -17,25 +17,19 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "FavoriteProducts", uniqueConstraints = @UniqueConstraint(columnNames = {"id_user", "id_producto"}))
+@Table(name = "FavoriteProducts", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "product_id"}))
 public class FavoriteProductsEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "id_user", nullable = false)
-    private Long id_user;
-
-    @Column(name = "id_producto", nullable = false)
-    private Long id_product;
-
-
     @ManyToOne
-    @JoinColumn(name = "id_user",insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
     @ManyToOne
-    @JoinColumn(name = "id_producto", insertable = false, updatable = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
+
 }

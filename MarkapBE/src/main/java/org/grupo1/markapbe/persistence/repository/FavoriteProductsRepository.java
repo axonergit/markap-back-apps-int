@@ -12,6 +12,6 @@ import java.util.Optional;
 @Repository
 public interface FavoriteProductsRepository extends JpaRepository<FavoriteProductsEntity, Long> {
 
-    @Query("SELECT f.id_product FROM FavoriteProductsEntity as f WHERE f.id_user = :userId")
-    List<Long> findFavoriteProductsByUserId(Long userId);
+    Optional<List<FavoriteProductsEntity>> findFavoriteProductsEntitiesByUser(UserEntity user);
+
 }
