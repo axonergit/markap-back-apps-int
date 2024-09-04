@@ -26,7 +26,8 @@ public interface CarritoRepository extends JpaRepository<CarritoEntity, Long> {
      * Finds the active cart (not paid) associated with the given user ID.
      *
      * @param userId the ID of the user to find the active cart for
-     * @return an `Optional` containing the active `CarritoEntity` for the given user ID, or an empty `Optional` if no active cart exists.
+     * @return an `Optional` containing the active `CarritoEntity` for the given user ID,
+     *          or an empty `Optional` if no active cart exists.
      */
     Optional<CarritoEntity> findActiveCartByUser(@Param("user_id") Long userId);
 
@@ -76,9 +77,19 @@ public interface CarritoRepository extends JpaRepository<CarritoEntity, Long> {
     boolean updateCartPaymentStatus(@Param("carrito_id") Long carritoId);
 
     /**
-     * Note: No se definio aun si la responsabiliad de sacar un producto es de
-     * ItemsCarritoRepository o de CarritoRepository;
+     * Deletes an item from the cart based on the item ID.
+     *
+     * This method will return:
+     * - `true` if the item was successfully deleted.
+     * - `false` if the item with the given ID does not exist or was not deleted.
+     *
+     * @param itemsCarritoId the ID of the ItemsCarritoEntity to delete
+     * @return `true` if the item was successfully deleted; `false` otherwise
      */
+    @Transactional
+    boolean deleteItemsByItemsCarritoId(@Param("itemscarrito_id") Long itemsCarritoId);
+
+
 }
 
 
