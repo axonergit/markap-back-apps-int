@@ -3,7 +3,9 @@ package org.grupo1.markapbe.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.grupo1.markapbe.controller.dto.ProductDTO;
 import org.grupo1.markapbe.persistence.entity.CategoryEntity;
+import org.grupo1.markapbe.persistence.entity.FavoriteProductsEntity;
 import org.grupo1.markapbe.persistence.entity.ProductEntity;
+import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.CategoryRepository;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,11 +48,13 @@ public class ProductService {
     }
 
 
-    public ProductDTO createProducto(ProductDTO productoRequestDTO) {
+    //revisar lo de categoria
+    public ProductDTO createProducto(ProductDTO productoRequestDTO, UserEntity userCreador) {
         CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.categoria().getId())
                 .orElseThrow(() -> new RuntimeException("Categoria not found"));
-        ProductEntity producto = convertToEntity(productoRequestDTO);  // agregar categoria como parameto (,categoria)
-        return convertToDto(productoRepository.save(producto));
+        //ProductEntity producto = convertToEntity(productoRequestDTO);// agregar categoria como parameto (,categoria)
+        ProductEntity productoCreado = convertToEntity(productoRequestDTO,userCreador, categoria);
+        return convertToDto(productoRepository.save(productoCreado)); // lo guardamos en la DB
     }
 
     public Optional<ProductDTO> updateProducto(Long id, ProductDTO productoRequestDTO) {
@@ -76,11 +80,19 @@ public class ProductService {
     }
 
     private ProductDTO convertToDto(ProductEntity producto) {
-        return objectMapper.convertValue(producto,ProductDTO.class);
+        return objectMapper.convertValue(producto, ProductDTO.class);
     }
 
-    private ProductEntity convertToEntity(ProductDTO dto) {
-        return objectMapper.convertValue(dto,ProductEntity.class);
+    //metodo para crear prodcutos con builder (revisar)
+    public ProductEntity convertToEntity(ProductDTO productoRequestDTO, UserEntity user, CategoryEntity categoria) {
+        return ProductEntity.builder()
+                .imagen(productoRequestDTO.imagen())  // Acceso directo sin "get"
+                .descripcion(productoRequestDTO.descripcion())  // Acceso directo sin "get"
+                .precio(productoRequestDTO.precio())  // Acceso directo sin "get"
+                .detalles(productoRequestDTO.detalles())  // Acceso directo sin "get"
+                .stock(productoRequestDTO.stock())  // Acceso directo sin "get"
+                .user(user)  // Asignar el usuario creador
+                .categoria(categoria)  // Asignar la categoría
+                .build();
     }
 }
-
