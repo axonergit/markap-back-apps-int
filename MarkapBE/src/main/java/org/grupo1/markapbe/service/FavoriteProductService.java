@@ -1,10 +1,12 @@
 package org.grupo1.markapbe.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.grupo1.markapbe.controller.dto.FavoriteProductRequestDTO;
 import org.grupo1.markapbe.controller.dto.ProductDTO;
 import org.grupo1.markapbe.persistence.entity.CategoryEntity;
 import org.grupo1.markapbe.persistence.entity.FavoriteProductsEntity;
 import org.grupo1.markapbe.persistence.entity.ProductEntity;
+import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.CategoryRepository;
 import org.grupo1.markapbe.persistence.repository.FavoriteProductsRepository;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
@@ -31,41 +33,27 @@ public class FavoriteProductService {
     private ObjectMapper objectMapper;
 
 
+
+    public List<ProductDTO> getLikes(UserEntity userEntity){
+        List<FavoriteProductsEntity> productos = productosFavoritosRepository.findFavoriteProductsEntitiesByUser(userEntity).orElseThrow(() -> new EntityNotFoundException("No existen likes"));
+        return productos.stream()
+                .map(FavoriteProductsEntity::getProduct)
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     //create
-    public FavoriteProductRequestDTO createFavoriteProduct(FavoriteProductRequestDTO productoRequestDTO) {
-        FavoriteProductsEntity fprod = convertToEntity(productoRequestDTO);
-        return convertToDto(productosFavoritosRepository.save(fprod));
+    public FavoriteProductRequestDTO createFavoriteProduct(FavoriteProductRequestDTO productoRequestDTO, UserEntity usuarioLikeador) {
+        ProductEntity product = productosRepository.findById(productoRequestDTO.id_product()).orElseThrow(() -> new EntityNotFoundException("El producto no existe"));
+        FavoriteProductsEntity nuevoLike = FavoriteProductsEntity.builder().product(product).user(usuarioLikeador).build();
+        FavoriteProductsEntity likeGuardado = productosFavoritosRepository.save(nuevoLike);
+        return new FavoriteProductRequestDTO(likeGuardado.getId());
     }
 
-
-    public List<ProductDTO> getFavoriteProductsByUserId(Long userId) {
-
-        ArrayList<Optional<ProductEntity>> listaDetalleProductos = new ArrayList<>();
-
-        List<Long> listaProductosID = productosFavoritosRepository.findFavoriteProductsByUserId(userId);
-
-        for (Long id : listaProductosID) {
-            Optional<ProductEntity> productoCompleto = productosRepository.findById(id);
-            listaDetalleProductos.add(productoCompleto);
-        }
-
-        return listaDetalleProductos.stream() // Convierte la lista a un Stream
-                .map(this::convertToDtoProductoCompleto) // Convierte cada ProductEntity a ProductDTO
-                .collect(Collectors.toList()); // Recoge el resultado en una lista
-    }
-
-
-    // metodos para manejar DTOs
-    private ProductDTO convertToDtoProductoCompleto(Optional<ProductEntity> producto) {
+    private ProductDTO convertToDto(ProductEntity producto) {
         return objectMapper.convertValue(producto,ProductDTO.class);
-
     }
 
-    private FavoriteProductRequestDTO convertToDto(FavoriteProductsEntity fprod) {
-        return objectMapper.convertValue(fprod, FavoriteProductRequestDTO.class);
-    }
 
-    private FavoriteProductsEntity convertToEntity(FavoriteProductRequestDTO dto) {
-        return objectMapper.convertValue(dto,FavoriteProductsEntity.class);
-    }
+
 }
