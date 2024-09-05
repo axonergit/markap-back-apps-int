@@ -17,11 +17,11 @@ public class ItemsCarritoEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "carrito_id")
+    @JoinColumn(name = "carrito_id", nullable = false)
     private CarritoEntity carrito;
 
     //Producto Column faltante FK
 
     @Column(name = "amount")
-    private int amount;
+    private int amount = 1;
 }

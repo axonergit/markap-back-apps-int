@@ -2,13 +2,13 @@ package org.grupo1.markapbe.service;
 
 import org.grupo1.markapbe.persistence.entity.CarritoEntity;
 import org.grupo1.markapbe.persistence.entity.ItemsCarritoEntity;
+import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.CarritoRepository;
 import org.grupo1.markapbe.persistence.repository.ItemsCarritoRepository;
+import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class CarritoService {
@@ -19,75 +19,93 @@ public class CarritoService {
     @Autowired
     private ItemsCarritoRepository itemsCarritoRepository;
 
-    // Obtener un carrito por su ID
-    public CarritoEntity getCarritoById(Long id) {
-        // Buscar el carrito por ID, si no se encuentra, devolver null
-        Optional<CarritoEntity> carritoEntity = carritoRepository.findById(id);
-        return carritoEntity.orElse(null);
-    }
+    @Autowired
+    private UserRepository userRepository;
 
-    // Obtener todos los items del carrito por el ID del carrito
-    public Set<ItemsCarritoEntity> getItemsCarritoByCarritoId(Long id) {
-        // Buscar el carrito por ID y devolver el conjunto de items, si no se encuentra, devolver null
-        Optional<CarritoEntity> carritoEntity = carritoRepository.findById(id);
-        return carritoEntity.map(CarritoEntity::getItemsCarrito).orElse(null);
-    }
+    /**
+     * Creates a new cart for the user. Throws an exception if an active cart already exists for the user.
+     *
+     * @param userId The ID of the user for whom the cart is being created.
+     */
+    public void createCarrito(Long userId) {
+        //Busca que no exista ya un carrito de usuario con paymentStatus = false
+        CarritoEntity actualCarrito = carritoRepository.findActiveCarritoByUser(userId)
+                .orElse(null);
 
-    // Obtener un ítem del carrito por el ID del carrito y el ID del producto
-    public ItemsCarritoEntity getItemCarritoByCarritoAndProduct(Long carritoId, Long productId) {
-        // Buscar el ítem del carrito por el ID del carrito y producto, si no se encuentra, devolver null
-        Optional<ItemsCarritoEntity> itemsCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(carritoId, productId);
-        return itemsCarrito.orElse(null);
+        if(actualCarrito != null) {
+            //Existe por ende no se puede crear uno nuevo.
+            throw new IllegalStateException("Ya existe un Carrito activo para este Usuario.");
+        }
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("No existe Usuario con ese Id."));
+
+        CarritoEntity newCarrito = CarritoEntity.builder()
+                .User(user)
+                .build();
+
+        carritoRepository.save(newCarrito);
     }
 
     /**
-     * Add an item to the cart. If the item already exists, the quantity is incremented.
-     * If it doesn't exist, a new item is created in the cart with quantity 1.
+     * Changes the status of a cart to 'paid' (paymentStatus = true).
      *
-     * @param carritoId The ID of the cart
-     * @param productoId The ID of the product to add
-     * @return The updated or newly created item
+     * @param carritoId The ID of the cart to be updated to paid status.
      */
-    public ItemsCarritoEntity addItemToCart(Long carritoId, Long productoId) {
-        ItemsCarritoEntity itemCarrito = this.getItemCarritoByCarritoAndProduct(carritoId, productoId);
-        if (itemCarrito != null) {
-            // Si el ítem ya existe, aumentar la cantidad
-            itemCarrito.setAmount(itemCarrito.getAmount() + 1);
-            return itemsCarritoRepository.save(itemCarrito);
-        } else {
+    public void changeStatusCarritoToPaid(Long carritoId) {
+        CarritoEntity carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new RuntimeException("No existe Carrito con ese Id."));
+        carrito.setPaymentStatus(true);
+        carritoRepository.save(carrito);
+    }
+
+    /**
+     * Adds an item to the cart. If the item exists, it increments the amount.
+     * If the item does not exist, it creates a new item in the cart.
+     *
+     * @param carritoId The ID of the cart where the item is being added.
+     * @param productoId The ID of the product to add to the cart.
+     */
+    public void addItemToCarrito(Long carritoId, Long productoId) {
+        ItemsCarritoEntity itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(carritoId,productoId)
+                .orElse(null);
+        if (itemCarrito == null) {
             // Si el ítem no existe, crear un nuevo ítem
-            CarritoEntity carrito = this.getCarritoById(carritoId);
-            //ProductoEntity producto = this.getProductoById(productoId); Asumimos que este metodo existe
+            CarritoEntity carrito = carritoRepository.findById(carritoId)
+                    .orElseThrow(() -> new RuntimeException("No existe Carrito con ese Id."));
+
             ItemsCarritoEntity newItemCarrito = ItemsCarritoEntity.builder()
                     .carrito(carrito)
-                    //Falta Producto, agregar cuando esté implementado
-                    .amount(1)
                     .build();
-            return itemsCarritoRepository.save(newItemCarrito);
+            itemsCarritoRepository.save(newItemCarrito);
+        } else {
+            // Si el ítem ya existe, aumentar la cantidad
+            itemCarrito.setAmount(itemCarrito.getAmount() + 1);
+            itemsCarritoRepository.save(itemCarrito);
         }
     }
 
     /**
-     * Remove an item from the cart. If the quantity is 1, the item is completely removed.
-     * If the quantity is greater than 1, the quantity is decremented.
+     * Removes an item from the cart. If the item amount is 1, it removes the item entirely.
+     * Otherwise, it decreases the amount by 1.
      *
-     * @param carritoId The ID of the cart
-     * @param productoId The ID of the product to remove
-     * @return The updated item or null if it was removed
+     * @param carritoId The ID of the cart where the item is being removed.
+     * @param productoId The ID of the product to remove from the cart.
      */
-    public ItemsCarritoEntity removeItemToCart(Long carritoId, Long productoId) {
-        ItemsCarritoEntity itemCarrito = this.getItemCarritoByCarritoAndProduct(carritoId, productoId);
+    public void removeItemFromCarrito(Long carritoId, Long productoId) {
+        ItemsCarritoEntity itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(carritoId,productoId)
+                .orElse(null);
+        if (itemCarrito == null) {
+            throw new IllegalStateException("No existe Item Carrito con ese Carrito Id y Producto Id");
+        }
 
-        // Verificar si la cantidad es 1
         if (itemCarrito.getAmount() == 1) {
-            // Si la cantidad es 1, remover el ítem completo del carrito
+            //Existe solo una unidad del item, Se elimina
             itemsCarritoRepository.delete(itemCarrito);
-            return null;  // Devolver null si el ítem fue eliminado
         } else {
-            // Si la cantidad es mayor que 1, disminuir la cantidad en 1
+            //Existe mas de una unidad del item, Se desincrementa
             itemCarrito.setAmount(itemCarrito.getAmount() - 1);
-            return itemsCarritoRepository.save(itemCarrito);
+            itemsCarritoRepository.save(itemCarrito);
         }
     }
 }
-

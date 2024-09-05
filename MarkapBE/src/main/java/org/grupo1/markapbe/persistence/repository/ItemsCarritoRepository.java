@@ -2,11 +2,10 @@ package org.grupo1.markapbe.persistence.repository;
 
 import org.grupo1.markapbe.persistence.entity.ItemsCarritoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import jakarta.transaction.Transactional;
 import java.util.Optional;
 
 @Repository
@@ -18,5 +17,8 @@ public interface ItemsCarritoRepository extends JpaRepository<ItemsCarritoEntity
      * @param productoId the ID of the product
      * @return an Optional containing the found ItemsCarritoEntity, or empty if not found
      */
+    @Query("SELECT ic FROM ItemsCarritoEntity AS ic WHERE ic.carrito.id = :carritoId AND 1=1") //FALTA PRODUCTO.
     Optional<ItemsCarritoEntity> findByCarritoIdAndProductId(@Param("carrito_id") Long carritoId, @Param("product_id") Long productId);
+
+
 }
