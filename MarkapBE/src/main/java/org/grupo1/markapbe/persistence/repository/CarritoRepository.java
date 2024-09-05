@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.grupo1.markapbe.persistence.entity.CarritoEntity;
 import org.grupo1.markapbe.persistence.entity.ItemsCarritoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -20,6 +21,7 @@ public interface CarritoRepository extends JpaRepository<CarritoEntity, Long> {
      * @return an `Optional` containing a list of `CarritoEntity` associated with the given user ID;
      *         otherwise, an empty `Optional` if no carts are found.
      */
+    @Query("SELECT c FROM CarritoEntity AS c WHERE c.User.id = :userId")
     Optional<List<CarritoEntity>> findByUser(@Param("user_id") Long userId);
 
     /**
@@ -29,7 +31,8 @@ public interface CarritoRepository extends JpaRepository<CarritoEntity, Long> {
      * @return an `Optional` containing the active `CarritoEntity` for the given user ID,
      *          or an empty `Optional` if no active cart exists.
      */
-    Optional<CarritoEntity> findActiveCartByUser(@Param("user_id") Long userId);
+    @Query("SELECT c FROM CarritoEntity AS c WHERE c.User.id = :userId AND c.paymentStatus = false")
+    Optional<CarritoEntity> findActiveCarritoByUser(@Param("user_id") Long userId);
 
     /**
      * Finds all carts that have been paid for the given user ID.
@@ -38,6 +41,7 @@ public interface CarritoRepository extends JpaRepository<CarritoEntity, Long> {
      * @return an `Optional` containing a list of `CarritoEntity` that are in the paid state for the given user ID;
      *         otherwise, an empty `Optional` if no paid carts are found.
      */
+    @Query("SELECT c FROM CarritoEntity AS c WHERE c.User.id = :userId AND c.paymentStatus = true")
     Optional<List<CarritoEntity>> findPaidCarts(@Param("user_id") Long userId);
 
     /**
