@@ -3,7 +3,9 @@ package org.grupo1.markapbe.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.grupo1.markapbe.controller.dto.ErrorResponseDTO;
+import org.grupo1.markapbe.service.UserDetailServiceImpl;
 import org.grupo1.markapbe.service.UserProfileService;
+import org.grupo1.markapbe.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,18 +23,21 @@ public class TestAuthController {
     private UserProfileService userProfileService;
 
 
+    @Autowired
+    private UserService userService;
+
     @Operation(description = "ESTE METODO ES PARA PROBAR EL GET.")
     @GetMapping("/get")
     @PreAuthorize("hasAuthority('READ')")
-    public String helloGet(Principal principal) {
-        return "Hello World - GET " + principal.getName();
+    public String helloGet() {
+        return "Hello World - GET " + userService.obtenerUsuarioPeticion().getUsername();
     }
 
 
     @PostMapping("/post")
     @PreAuthorize("hasRole('USUARIO')")
-    public String helloPost(Principal principal) {
-        return "Hello World - POST " + principal.getName();
+    public String helloPost() {
+        return "Hello World - POST " + userService.obtenerUsuarioPeticion().getUsername();
     }
 
     @PutMapping("/put")

@@ -1,4 +1,23 @@
 # markap-back-apps-int
+
+### 1. Commit Messages
+
+Use clear and consistent commit messages to document the history of changes. Follow the [Conventional Commits](https://www.conventionalcommits.org/) standard for commit messages:
+
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation only changes
+- `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc.)
+- `refactor`: A code change that neither fixes a bug nor adds a feature
+- `perf`: A code change that improves performance
+- `test`: Adding missing or correcting existing tests
+- `chore`: Changes to the build process or auxiliary tools and libraries
+
+**Examples**:
+- `feat: add user registration and login API`
+- `fix: correct null pointer exception in OrderService`
+- `docs: update README with setup instructions`
+
 ```mermaid
 erDiagram
     USER ||--|| USER-PROFILE : tiene
