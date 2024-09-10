@@ -96,9 +96,9 @@ public class CarritoService {
      *
      * @return Set<ItemsCarritoDTO> A set of DTOs representing the items in the cart.
      */
-    public Set<ItemsCarritoDTO> getAllItemsByCarritoIdDTO(CarritoDTO carritoDTO) {
+    public Set<ItemsCarritoDTO> getAllItemsByCarritoDTO(CarritoDTO carritoDTO) {
         Long carritoId = carritoDTO.id();
-        Set<ItemsCarritoEntity> itemsCarrito = getAllItemsByCarritoId(carritoId);
+        Set<ItemsCarritoEntity> itemsCarrito = getAllItemsByCarritoDTO(carritoId);
         return itemsCarrito.stream() // stream() Permite realizar operaciones en colecciones de Datos.
                 .map(this::convertToDTO) // .map() Convertir cada ItemsCarritoEntity a ItemsCarritoDTO.
                 .collect(Collectors.toSet()); // .collect() Recoge los resultados en el Set.
@@ -110,7 +110,7 @@ public class CarritoService {
      * @param carritoId The ID of the cart.
      * @return Set<ItemsCarritoEntity> A set of entity representations of the items in the cart.
      */
-    public Set<ItemsCarritoEntity> getAllItemsByCarritoId(Long carritoId) {
+    public Set<ItemsCarritoEntity> getAllItemsByCarritoDTO(Long carritoId) {
         return itemsCarritoRepository.findAllItemsByCarritoId(carritoId)
                 .orElseThrow(() -> new EntityNotFoundException("Item carrito no encontrado."));
     }
