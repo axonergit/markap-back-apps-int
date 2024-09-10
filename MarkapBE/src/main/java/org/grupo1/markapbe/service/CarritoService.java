@@ -14,10 +14,10 @@ import org.grupo1.markapbe.persistence.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 @Service
 public class CarritoService {
 
@@ -42,16 +42,13 @@ public class CarritoService {
      * @return CarritoEntity The entity representation of the newly created cart.
      */
     public CarritoEntity createCarrito() {
-        // Chequea si existe un Carrito activo (paymentStatus = false)
         UserEntity user = userService.obtenerUsuarioPeticion();
         Optional<CarritoEntity> actualCarrito = carritoRepository.findActiveCarritoByUser(user.getId());
 
-        if(actualCarrito.isPresent()) {
-            // Si existe manda error (Solo debe existir un Carrito Activo por Usuario)
+        if (actualCarrito.isPresent()) {
             throw new IllegalStateException("El usuario ya tiene un Carrito Activo");
         }
 
-        // Crea nuevo carrito
         CarritoEntity newCarrito = CarritoEntity.builder()
                 .User(user)
                 .build();
@@ -63,7 +60,7 @@ public class CarritoService {
      *
      * @return CarritoDTO The DTO representation of the newly created cart.
      */
-    public CarritoDTO createCarritoDTO(){
+    public CarritoDTO createCarritoDTO() {
         CarritoEntity carrito = createCarrito();
         return convertToDTO(carrito);
     }
@@ -71,37 +68,21 @@ public class CarritoService {
     /**
      * Retrieves the active cart (paymentStatus = false) for the current user.
      *
-     * @return CarritoDTO The DTO representation of the active cart.
-     * @throws EntityNotFoundException If no active cart is found for the current user.
+     * @return CarritoEntity The entity representation of the active cart.
      */
-    public CarritoDTO getActiveCarritoDTO() {
-        CarritoEntity carrito = getActiveCarrito();
-        return convertToDTO(carrito);
+    public CarritoEntity getActiveCarrito() {
+        UserEntity user = userService.obtenerUsuarioPeticion();
+        return carritoRepository.findActiveCarritoByUser(user.getId())
+                .orElse(null);
     }
 
     /**
      * Retrieves the active cart (paymentStatus = false) for the current user.
      *
-     * @return CarritoEntity The entity representation of the active cart.
-     * @throws EntityNotFoundException If no active cart is found for the current user.
+     * @return Optional<CarritoDTO> The Optional DTO representation of the active cart.
      */
-    public CarritoEntity getActiveCarrito() {
-        UserEntity user = userService.obtenerUsuarioPeticion();
-        return carritoRepository.findActiveCarritoByUser(user.getId())
-                .orElseThrow(() -> new EntityNotFoundException("No existe Carrito"));
-    }
-
-    /**
-     * Retrieves all items from a specific cart and returns DTOs.
-     *
-     * @return Set<ItemsCarritoDTO> A set of DTOs representing the items in the cart.
-     */
-    public Set<ItemsCarritoDTO> getAllItemsByCarritoDTO(CarritoDTO carritoDTO) {
-        Long carritoId = carritoDTO.id();
-        Set<ItemsCarritoEntity> itemsCarrito = getAllItemsByCarritoDTO(carritoId);
-        return itemsCarrito.stream() // stream() Permite realizar operaciones en colecciones de Datos.
-                .map(this::convertToDTO) // .map() Convertir cada ItemsCarritoEntity a ItemsCarritoDTO.
-                .collect(Collectors.toSet()); // .collect() Recoge los resultados en el Set.
+    public Optional<CarritoDTO> getActiveCarritoDTO() {
+        return Optional.of(convertToDTO(getActiveCarrito()));
     }
 
     /**
@@ -110,9 +91,23 @@ public class CarritoService {
      * @param carritoId The ID of the cart.
      * @return Set<ItemsCarritoEntity> A set of entity representations of the items in the cart.
      */
-    public Set<ItemsCarritoEntity> getAllItemsByCarritoDTO(Long carritoId) {
+    public Set<ItemsCarritoEntity> getAllItemsByCarrito(Long carritoId) {
         return itemsCarritoRepository.findAllItemsByCarritoId(carritoId)
                 .orElseThrow(() -> new EntityNotFoundException("Item carrito no encontrado."));
+    }
+
+    /**
+     * Retrieves all items from a specific cart and returns Optional DTOs.
+     *
+     * @param carritoDTO The DTO representation of the cart.
+     * @return Optional<Set<ItemsCarritoDTO>> A set of Optional DTOs representing the items in the cart.
+     */
+    public Optional<Set<ItemsCarritoDTO>> getAllItemsByCarritoDTO(CarritoDTO carritoDTO) {
+        Long carritoId = carritoDTO.id();
+        return Optional.of(getAllItemsByCarrito(carritoId)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toSet()));
     }
 
     /**
@@ -130,10 +125,24 @@ public class CarritoService {
      * Retrieves a cart DTO by its ID.
      *
      * @param carritoId The ID of the cart.
-     * @return CarritoDTO The DTO representation of the cart.
+     * @return Optional<CarritoDTO> The Optional DTO representation of the cart.
      */
-    public CarritoDTO getCarritoDTO(Long carritoId) {
-        return convertToDTO(getCarrito(carritoId));
+    public Optional<CarritoDTO> getCarritoDTO(Long carritoId) {
+        return Optional.of(convertToDTO(getCarrito(carritoId)));
+    }
+
+    /**
+     * Retrieves all carts for the current user.
+     *
+     * @return Optional<List<CarritoDTO>> A list of Optional DTOs representing all carts.
+     */
+    public Optional<List<CarritoDTO>> getAllCarritos() {
+        UserEntity user = userService.obtenerUsuarioPeticion();
+        List<CarritoEntity> allCarritos = carritoRepository.findAllByUser(user.getId())
+                .orElseThrow(() -> new IllegalStateException("Debe existir al menos el carrito Activo"));
+        return Optional.of(allCarritos.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList()));
     }
 
     // ACCIONES
@@ -163,7 +172,6 @@ public class CarritoService {
                 carrito.getId(), productId);
 
         if (itemCarrito.isEmpty()) {
-            // Si no existe se crea la nueva Entidad Relacion;
             ProductEntity product = productRepository.findById(productId)
                     .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado."));
 
@@ -173,9 +181,8 @@ public class CarritoService {
                     .amount(amount)
                     .build();
             return convertToDTO(itemsCarritoRepository.save(newItemCarrito));
-
         }
-        // If the item exists, increment the amount
+
         ItemsCarritoEntity itemCarritoEnt = itemCarrito.get();
         itemCarritoEnt.setAmount(itemCarritoEnt.getAmount() + amount);
         return convertToDTO(itemsCarritoRepository.save(itemCarritoEnt));
@@ -189,22 +196,20 @@ public class CarritoService {
      * @param amount The amount to decrement from the cart item.
      * @return ItemsCarritoDTO The DTO representation of the updated item, or null if deleted.
      */
-    public ItemsCarritoDTO removeItemFromCarrito(Long productId, int amount){
+    public ItemsCarritoDTO removeItemFromCarrito(Long productId, int amount) {
         CarritoEntity carrito = getActiveCarrito();
         ItemsCarritoEntity itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(
                         carrito.getId(), productId)
                 .orElseThrow(() -> new EntityNotFoundException("Item del Carrito no encontrado."));
 
-        if (itemCarrito.getAmount() < amount) { // Si amount es mayor que lo que hay en el Carrito no podemos operar.
-            throw new IllegalArgumentException("La cantidad a eliminar del Producto " +
-                    "no puede ser mayor a lo ya existente an el Carrito");
+        if (itemCarrito.getAmount() < amount) {
+            throw new IllegalArgumentException("La cantidad a eliminar del Producto no puede ser mayor a lo ya existente en el Carrito");
         }
         if (itemCarrito.getAmount() == amount) {
-            // Si es una sola unidad, Entonces se elimina de la relacion;
             itemsCarritoRepository.delete(itemCarrito);
             return null;
         }
-        // Si no se modifica la Entidad
+
         itemCarrito.setAmount(itemCarrito.getAmount() - amount);
         return convertToDTO(itemsCarritoRepository.save(itemCarrito));
     }
@@ -228,5 +233,4 @@ public class CarritoService {
     private ItemsCarritoDTO convertToDTO(ItemsCarritoEntity itemsCarritoEntity) {
         return objectMapper.convertValue(itemsCarritoEntity, ItemsCarritoDTO.class);
     }
-
 }
