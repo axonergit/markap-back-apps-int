@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface ItemsCarritoRepository extends JpaRepository<ItemsCarritoEntity, Long> {
@@ -14,11 +15,13 @@ public interface ItemsCarritoRepository extends JpaRepository<ItemsCarritoEntity
      * Finds a specific item in a cart based on cart ID and product ID.
      *
      * @param carritoId the ID of the cart
-     * @param productoId the ID of the product
+     * @param productId the ID of the product
      * @return an Optional containing the found ItemsCarritoEntity, or empty if not found
      */
-    @Query("SELECT ic FROM ItemsCarritoEntity AS ic WHERE ic.carrito.id = :carritoId AND 1=1") //FALTA PRODUCTO.
+    @Query("SELECT ic FROM ItemsCarritoEntity AS ic WHERE ic.carrito.id = :carritoId AND ic.product.id = :productId")
     Optional<ItemsCarritoEntity> findByCarritoIdAndProductId(@Param("carrito_id") Long carritoId, @Param("product_id") Long productId);
 
+    @Query("SELECT ic FROM ItemsCarritoEntity AS ic WHERE ic.carrito.id = :carritoId")
+    Optional<Set<ItemsCarritoEntity>> findAllItemsByCarritoId(@Param("carrito_id") Long carritoId);
 
 }
