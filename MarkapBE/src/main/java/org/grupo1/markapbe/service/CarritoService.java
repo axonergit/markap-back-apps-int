@@ -64,7 +64,7 @@ public class CarritoService {
      * @return CarritoDTO The DTO representation of the newly created cart.
      */
     public CarritoDTO createCarritoDTO(){
-        CarritoEntity carrito = this.createCarrito();
+        CarritoEntity carrito = createCarrito();
         return convertToDTO(carrito);
     }
 
@@ -75,7 +75,7 @@ public class CarritoService {
      * @throws EntityNotFoundException If no active cart is found for the current user.
      */
     public CarritoDTO getActiveCarritoDTO() {
-        CarritoEntity carrito = this.getActiveCarrito();
+        CarritoEntity carrito = getActiveCarrito();
         return convertToDTO(carrito);
     }
 
@@ -98,7 +98,7 @@ public class CarritoService {
      */
     public Set<ItemsCarritoDTO> getAllItemsByCarritoIdDTO(CarritoDTO carritoDTO) {
         Long carritoId = carritoDTO.id();
-        Set<ItemsCarritoEntity> itemsCarrito = this.getAllItemsByCarritoId(carritoId);
+        Set<ItemsCarritoEntity> itemsCarrito = getAllItemsByCarritoId(carritoId);
         return itemsCarrito.stream() // stream() Permite realizar operaciones en colecciones de Datos.
                 .map(this::convertToDTO) // .map() Convertir cada ItemsCarritoEntity a ItemsCarritoDTO.
                 .collect(Collectors.toSet()); // .collect() Recoge los resultados en el Set.
@@ -133,7 +133,7 @@ public class CarritoService {
      * @return CarritoDTO The DTO representation of the cart.
      */
     public CarritoDTO getCarritoDTO(Long carritoId) {
-        return convertToDTO(this.getCarrito(carritoId));
+        return convertToDTO(getCarrito(carritoId));
     }
 
     // ACCIONES
@@ -141,13 +141,10 @@ public class CarritoService {
     /**
      * Changes the status of a cart to 'paid' (paymentStatus = true).
      *
-     * @param carritoDTO The DTO representation of the cart to be updated.
      * @return CarritoDTO The updated DTO representation of the cart.
      */
-    public CarritoDTO changeStatusCarritoToPaid(CarritoDTO carritoDTO) {
-        Long carritoId = carritoDTO.id();
-        CarritoEntity carrito = carritoRepository.findById(carritoId)
-                .orElseThrow(() -> new EntityNotFoundException("Carrito no encontrado."));
+    public CarritoDTO changeStatusCarritoToPaid() {
+        CarritoEntity carrito = getActiveCarrito();
         carrito.setPaymentStatus(true);
         return convertToDTO(carritoRepository.save(carrito));
     }
@@ -159,7 +156,7 @@ public class CarritoService {
      * @return ItemsCarritoDTO The DTO representation of the item added or updated.
      */
     public ItemsCarritoDTO addItemToCarrito(Long productId) {
-        return this.addItemToCarrito(productId, 1);
+        return addItemToCarrito(productId, 1);
     }
 
     /**
@@ -171,7 +168,7 @@ public class CarritoService {
      * @return ItemsCarritoDTO The DTO representation of the item added or updated.
      */
     public ItemsCarritoDTO addItemToCarrito(Long productId, int amount) {
-        CarritoEntity carrito = this.getActiveCarrito();
+        CarritoEntity carrito = getActiveCarrito();
         Optional<ItemsCarritoEntity> itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(
                 carrito.getId(), productId);
 
@@ -201,7 +198,7 @@ public class CarritoService {
      * @return ItemsCarritoDTO The DTO representation of the updated item, or null if deleted.
      */
     public ItemsCarritoDTO removeItemFromCarrito(Long productId) {
-        return this.removeItemFromCarrito(productId, 1);
+        return removeItemFromCarrito(productId, 1);
     }
 
     /**
@@ -213,7 +210,7 @@ public class CarritoService {
      * @return ItemsCarritoDTO The DTO representation of the updated item, or null if deleted.
      */
     public ItemsCarritoDTO removeItemFromCarrito(Long productId, int amount){
-        CarritoEntity carrito = this.getActiveCarrito();
+        CarritoEntity carrito = getActiveCarrito();
         ItemsCarritoEntity itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(
                         carrito.getId(), productId)
                 .orElseThrow(() -> new EntityNotFoundException("Item del Carrito no encontrado."));
