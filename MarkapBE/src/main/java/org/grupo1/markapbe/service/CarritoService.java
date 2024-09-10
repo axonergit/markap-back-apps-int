@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 @Service
 public class CarritoService {
 
@@ -40,9 +39,9 @@ public class CarritoService {
     /**
      * Creates a new cart for the current user.
      *
-     * @return CarritoDTO The DTO representation of the newly created cart.
+     * @return CarritoEntity The entity representation of the newly created cart.
      */
-    public CarritoDTO createCarrito() {
+    public CarritoEntity createCarrito() {
         // Chequea si existe un Carrito activo (paymentStatus = false)
         UserEntity user = userService.obtenerUsuarioPeticion();
         Optional<CarritoEntity> actualCarrito = carritoRepository.findActiveCarritoByUser(user.getId());
@@ -56,35 +55,64 @@ public class CarritoService {
         CarritoEntity newCarrito = CarritoEntity.builder()
                 .User(user)
                 .build();
-        return convertToDTO(carritoRepository.save(newCarrito));
+        return carritoRepository.save(newCarrito);
     }
 
     /**
-     * Retrieves all items from a specific cart.
+     * Creates a new cart for the current user and returns a DTO.
      *
-     * @param carritoId The ID of the cart.
-     * @param carritoDTO The DTO representation of the cart.
+     * @return CarritoDTO The DTO representation of the newly created cart.
+     */
+    public CarritoDTO createCarritoDTO(){
+        CarritoEntity carrito = this.createCarrito();
+        return convertToDTO(carrito);
+    }
+
+    /**
+     * Retrieves the active cart (paymentStatus = false) for the current user.
+     *
+     * @return CarritoDTO The DTO representation of the active cart.
+     * @throws EntityNotFoundException If no active cart is found for the current user.
+     */
+    public CarritoDTO getActiveCarritoDTO() {
+        CarritoEntity carrito = this.getActiveCarrito();
+        return convertToDTO(carrito);
+    }
+
+    /**
+     * Retrieves the active cart (paymentStatus = false) for the current user.
+     *
+     * @return CarritoEntity The entity representation of the active cart.
+     * @throws EntityNotFoundException If no active cart is found for the current user.
+     */
+    public CarritoEntity getActiveCarrito() {
+        UserEntity user = userService.obtenerUsuarioPeticion();
+        return carritoRepository.findActiveCarritoByUser(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("No existe Carrito"));
+    }
+
+    /**
+     * Retrieves all items from a specific cart and returns DTOs.
+     *
      * @return Set<ItemsCarritoDTO> A set of DTOs representing the items in the cart.
      */
-    public Set<ItemsCarritoDTO> getAllItemsByCarritoId(Long carritoId, CarritoDTO carritoDTO) {
-        Set<ItemsCarritoEntity> itemsCarrito = itemsCarritoRepository.findAllItemsByCarritoId(carritoId)
-                .orElseThrow(() -> new EntityNotFoundException("Item carrito no encontrado."));
+    public Set<ItemsCarritoDTO> getAllItemsByCarritoIdDTO(CarritoDTO carritoDTO) {
+        Long carritoId = carritoDTO.id();
+        Set<ItemsCarritoEntity> itemsCarrito = this.getAllItemsByCarritoId(carritoId);
         return itemsCarrito.stream() // stream() Permite realizar operaciones en colecciones de Datos.
                 .map(this::convertToDTO) // .map() Convertir cada ItemsCarritoEntity a ItemsCarritoDTO.
                 .collect(Collectors.toSet()); // .collect() Recoge los resultados en el Set.
     }
 
     /**
-     * Retrieves a specific item from the cart.
+     * Retrieves all items from a specific cart.
      *
      * @param carritoId The ID of the cart.
-     * @param productId The ID of the product in the cart.
-     * @return ItemsCarritoDTO The DTO representation of the item in the cart.
+     * @return Set<ItemsCarritoEntity> A set of entity representations of the items in the cart.
      */
-    public ItemsCarritoDTO getItemFromCarrito(Long carritoId, Long productId) {
-        ItemsCarritoEntity itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(carritoId, productId)
+    public Set<ItemsCarritoEntity> getAllItemsByCarritoId(Long carritoId) {
+        return itemsCarritoRepository.findAllItemsByCarritoId(carritoId)
                 .orElseThrow(() -> new EntityNotFoundException("Item carrito no encontrado."));
-        return convertToDTO(itemCarrito);
     }
 
     /**
@@ -93,19 +121,31 @@ public class CarritoService {
      * @param carritoId The ID of the cart.
      * @return CarritoEntity The entity representation of the cart.
      */
-    public CarritoEntity getCarritoEntity(Long carritoId) {
+    public CarritoEntity getCarrito(Long carritoId) {
         return carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new EntityNotFoundException("Carrito no encontrado."));
     }
 
     /**
+     * Retrieves a cart DTO by its ID.
+     *
+     * @param carritoId The ID of the cart.
+     * @return CarritoDTO The DTO representation of the cart.
+     */
+    public CarritoDTO getCarritoDTO(Long carritoId) {
+        return convertToDTO(this.getCarrito(carritoId));
+    }
+
+    // ACCIONES
+
+    /**
      * Changes the status of a cart to 'paid' (paymentStatus = true).
      *
-     * @param carritoId The ID of the cart to be updated.
      * @param carritoDTO The DTO representation of the cart to be updated.
      * @return CarritoDTO The updated DTO representation of the cart.
      */
-    public CarritoDTO changeStatusCarritoToPaid(Long carritoId, CarritoDTO carritoDTO) {
+    public CarritoDTO changeStatusCarritoToPaid(CarritoDTO carritoDTO) {
+        Long carritoId = carritoDTO.id();
         CarritoEntity carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new EntityNotFoundException("Carrito no encontrado."));
         carrito.setPaymentStatus(true);
@@ -113,56 +153,82 @@ public class CarritoService {
     }
 
     /**
-     * Adds an item to the cart. If the item exists, increments the amount.
-     * If the item does not exist, creates a new item in the cart.
+     * Adds an item to the cart and returns a DTO. If the item exists, increments the amount.
      *
-     * @param carritoId The ID of the cart where the item is being added.
      * @param productId The ID of the product to be added to the cart.
      * @return ItemsCarritoDTO The DTO representation of the item added or updated.
      */
-    public ItemsCarritoDTO addItemToCarrito(Long carritoId, Long productId) {
-        Optional<ItemsCarritoEntity> itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(carritoId, productId);
+    public ItemsCarritoDTO addItemToCarrito(Long productId) {
+        return this.addItemToCarrito(productId, 1);
+    }
+
+    /**
+     * Adds an item to the cart. If the item exists, increments the amount.
+     * If the item does not exist, creates a new item in the cart.
+     *
+     * @param productId The ID of the product to be added to the cart.
+     * @param amount The amount of the product to add to the cart.
+     * @return ItemsCarritoDTO The DTO representation of the item added or updated.
+     */
+    public ItemsCarritoDTO addItemToCarrito(Long productId, int amount) {
+        CarritoEntity carrito = this.getActiveCarrito();
+        Optional<ItemsCarritoEntity> itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(
+                carrito.getId(), productId);
 
         if (itemCarrito.isEmpty()) {
-            // If the item does not exist, create a new item in the cart
-            CarritoEntity carrito = carritoRepository.findById(carritoId)
-                    .orElseThrow(() -> new EntityNotFoundException("Carrito no encontrado."));
-
+            // Si no existe se crea la nueva Entidad Relacion;
             ProductEntity product = productRepository.findById(productId)
                     .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado."));
 
             ItemsCarritoEntity newItemCarrito = ItemsCarritoEntity.builder()
                     .carrito(carrito)
                     .product(product)
+                    .amount(amount)
                     .build();
             return convertToDTO(itemsCarritoRepository.save(newItemCarrito));
 
         }
         // If the item exists, increment the amount
         ItemsCarritoEntity itemCarritoEnt = itemCarrito.get();
-        itemCarritoEnt.setAmount(itemCarritoEnt.getAmount() + 1);
+        itemCarritoEnt.setAmount(itemCarritoEnt.getAmount() + amount);
         return convertToDTO(itemsCarritoRepository.save(itemCarritoEnt));
     }
 
     /**
-     * Removes an item from the cart. If the amount is 1, the item is deleted.
-     * Otherwise, the amount is decremented by 1.
+     * Removes an item from the cart and returns a DTO. If the amount is 1, the item is deleted.
      *
-     * @param carritoId The ID of the cart from which the item is being removed.
      * @param productId The ID of the product to be removed from the cart.
      * @return ItemsCarritoDTO The DTO representation of the updated item, or null if deleted.
      */
-    public ItemsCarritoDTO removeItemFromCarrito(Long carritoId, Long productId) {
-        ItemsCarritoEntity itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(carritoId, productId)
+    public ItemsCarritoDTO removeItemFromCarrito(Long productId) {
+        return this.removeItemFromCarrito(productId, 1);
+    }
+
+    /**
+     * Removes an item from the cart. If the amount is 1, the item is deleted.
+     * Otherwise, the amount is decremented by the specified amount.
+     *
+     * @param productId The ID of the product to be removed from the cart.
+     * @param amount The amount to decrement from the cart item.
+     * @return ItemsCarritoDTO The DTO representation of the updated item, or null if deleted.
+     */
+    public ItemsCarritoDTO removeItemFromCarrito(Long productId, int amount){
+        CarritoEntity carrito = this.getActiveCarrito();
+        ItemsCarritoEntity itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(
+                        carrito.getId(), productId)
                 .orElseThrow(() -> new EntityNotFoundException("Item del Carrito no encontrado."));
 
-        if (itemCarrito.getAmount() == 1) {
-            // If there is only one unit of the item, delete it
+        if (itemCarrito.getAmount() < amount) { // Si amount es mayor que lo que hay en el Carrito no podemos operar.
+            throw new IllegalArgumentException("La cantidad a eliminar del Producto " +
+                    "no puede ser mayor a lo ya existente an el Carrito");
+        }
+        if (itemCarrito.getAmount() == amount) {
+            // Si es una sola unidad, Entonces se elimina de la relacion;
             itemsCarritoRepository.delete(itemCarrito);
             return null;
         }
-        // If there are more than one unit, decrease the amount by 1
-        itemCarrito.setAmount(itemCarrito.getAmount() - 1);
+        // Si no se modifica la Entidad
+        itemCarrito.setAmount(itemCarrito.getAmount() - amount);
         return convertToDTO(itemsCarritoRepository.save(itemCarrito));
     }
 
@@ -186,13 +252,4 @@ public class CarritoService {
         return objectMapper.convertValue(itemsCarritoEntity, ItemsCarritoDTO.class);
     }
 
-//    private CarritoEntity convertToEntity(CarritoDTO carritoDTO) {
-//        return objectMapper.convertValue(carritoDTO, CarritoEntity.class);
-//    }
-//
-//    private ItemsCarritoEntity convertToEntity(ItemsCarritoDTO itemsCarritoDTO) {
-//        return objectMapper.convertValue(itemsCarritoDTO, ItemsCarritoEntity.class);
-//    }
-
 }
-
