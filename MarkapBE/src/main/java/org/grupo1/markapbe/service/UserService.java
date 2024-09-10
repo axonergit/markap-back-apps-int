@@ -18,6 +18,9 @@ public class UserService {
 
     public UserEntity obtenerUsuarioPeticion(){
         String userData = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findUserEntityByUsername(userData).orElseThrow(() -> new EntityNotFoundException("El usuario no fue encontrado. Tal vez llamaste a esta peticion desde un endpoint no protegido por autorizacion."));
+        return userRepository.findUserEntityByUsername(userData)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "El usuario no fue encontrado. Tal vez llamaste a esta peticion desde un endpoint" +
+                        " no protegido por autorizacion."));
     }
 }

@@ -21,8 +21,8 @@ public class CarritoEntity {
     @Column(name = "payment_status", nullable = false)
     private boolean paymentStatus = false;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user", nullable = false)
     private UserEntity User;
 
     @OneToMany

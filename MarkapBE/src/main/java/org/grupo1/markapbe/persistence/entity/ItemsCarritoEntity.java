@@ -20,7 +20,9 @@ public class ItemsCarritoEntity {
     @JoinColumn(name = "carrito_id", nullable = false)
     private CarritoEntity carrito;
 
-    //Producto Column faltante FK
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
+    private ProductEntity product;
 
     @Column(name = "amount")
     private int amount = 1;

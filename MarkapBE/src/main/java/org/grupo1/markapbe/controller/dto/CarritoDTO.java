@@ -1,6 +1,10 @@
 package org.grupo1.markapbe.controller.dto;
 
-import org.grupo1.markapbe.persistence.entity.UserEntity;
+import jakarta.validation.constraints.NotBlank;
+import org.grupo1.markapbe.persistence.entity.ItemsCarritoEntity;
 
-public record CarritoDTO(UserEntity User, boolean paymentStatus) {
-}
+import java.util.Set;
+
+public record CarritoDTO(
+        Set<ItemsCarritoEntity> items,
+        boolean paymentStatus) {}
