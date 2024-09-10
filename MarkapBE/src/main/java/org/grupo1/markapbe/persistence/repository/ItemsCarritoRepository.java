@@ -19,9 +19,9 @@ public interface ItemsCarritoRepository extends JpaRepository<ItemsCarritoEntity
      * @return an Optional containing the found ItemsCarritoEntity, or empty if not found
      */
     @Query("SELECT ic FROM ItemsCarritoEntity AS ic WHERE ic.carrito.id = :carritoId AND ic.product.id = :productId")
-    Optional<ItemsCarritoEntity> findByCarritoIdAndProductId(@Param("carrito_id") Long carritoId, @Param("product_id") Long productId);
+    Optional<ItemsCarritoEntity> findByCarritoIdAndProductId(@Param("carritoId") Long carritoId, @Param("productId") Long productId);
 
     @Query("SELECT ic FROM ItemsCarritoEntity AS ic WHERE ic.carrito.id = :carritoId")
-    Optional<Set<ItemsCarritoEntity>> findAllItemsByCarritoId(@Param("carrito_id") Long carritoId);
+    Optional<Set<ItemsCarritoEntity>> findAllItemsByCarritoId(@Param("carritoId") Long carritoId);
 
 }
