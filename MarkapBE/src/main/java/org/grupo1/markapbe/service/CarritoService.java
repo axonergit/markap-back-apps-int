@@ -150,16 +150,6 @@ public class CarritoService {
     }
 
     /**
-     * Adds an item to the cart and returns a DTO. If the item exists, increments the amount.
-     *
-     * @param productId The ID of the product to be added to the cart.
-     * @return ItemsCarritoDTO The DTO representation of the item added or updated.
-     */
-    public ItemsCarritoDTO addItemToCarrito(Long productId) {
-        return addItemToCarrito(productId, 1);
-    }
-
-    /**
      * Adds an item to the cart. If the item exists, increments the amount.
      * If the item does not exist, creates a new item in the cart.
      *
@@ -189,16 +179,6 @@ public class CarritoService {
         ItemsCarritoEntity itemCarritoEnt = itemCarrito.get();
         itemCarritoEnt.setAmount(itemCarritoEnt.getAmount() + amount);
         return convertToDTO(itemsCarritoRepository.save(itemCarritoEnt));
-    }
-
-    /**
-     * Removes an item from the cart and returns a DTO. If the amount is 1, the item is deleted.
-     *
-     * @param productId The ID of the product to be removed from the cart.
-     * @return ItemsCarritoDTO The DTO representation of the updated item, or null if deleted.
-     */
-    public ItemsCarritoDTO removeItemFromCarrito(Long productId) {
-        return removeItemFromCarrito(productId, 1);
     }
 
     /**
