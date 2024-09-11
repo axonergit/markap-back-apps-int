@@ -1,12 +1,17 @@
 package org.grupo1.markapbe.controller;
 
 import org.grupo1.markapbe.controller.dto.ProductDTO;
+import org.grupo1.markapbe.persistence.entity.UserEntity;
+import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.grupo1.markapbe.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +21,9 @@ public class ProductController {
 
     @Autowired
     private ProductService productoService;
+
+    @Autowired
+    private UserRepository repositoryUsuario;
 
     @GetMapping
     public List<ProductDTO> getAllProductos() {
@@ -43,9 +51,10 @@ public class ProductController {
 
 
     @PostMapping
-   // Solo admin puede crear productos -->  @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductDTO> createProducto(@RequestBody ProductDTO productoRequestDTO) {
-        ProductDTO producto = productoService.createProducto(productoRequestDTO);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProductDTO> createProducto(@RequestBody ProductDTO productoRequestDTO, Principal principal) {
+        UserEntity user = repositoryUsuario.findUserEntityByUsername(principal.getName()).orElseThrow(() -> new UsernameNotFoundException("El usuario no fue encontrado"));
+        ProductDTO producto = productoService.createProducto(productoRequestDTO, user);
         return ResponseEntity.ok(producto);
     }
 

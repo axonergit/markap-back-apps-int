@@ -36,6 +36,11 @@ public class ProductEntity {
     @Column(name = "stock")
     private int stock;
 
+    @ManyToOne
+    @JoinColumn(name = "user_creador_id")  // El nombre de la columna que contendrá la clave foránea en la tabla actual
+    private UserEntity user;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)
     @JsonBackReference  // maneja mucho mejor las relaciones bidireccionales, para tener en cuenta
