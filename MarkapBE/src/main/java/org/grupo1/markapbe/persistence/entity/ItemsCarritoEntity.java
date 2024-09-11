@@ -17,13 +17,13 @@ public class ItemsCarritoEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "carrito_id", nullable = false)
+    @JoinColumn(name = "carritoId", nullable = false)
     private CarritoEntity carrito;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "productId", nullable = false)
     private ProductEntity product;
 
     @Column(name = "amount")
-    private int amount = 1;
+    private int amount;
 }

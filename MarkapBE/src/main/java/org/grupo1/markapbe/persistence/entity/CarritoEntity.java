@@ -22,7 +22,7 @@ public class CarritoEntity {
     private boolean paymentStatus = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private UserEntity User;
 
     @OneToMany
