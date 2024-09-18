@@ -14,4 +14,6 @@ public interface FavoriteProductsRepository extends JpaRepository<FavoriteProduc
 
     Optional<List<FavoriteProductsEntity>> findFavoriteProductsEntitiesByUser(UserEntity user);
 
+    Optional<FavoriteProductsEntity> findByUserAndProductId(UserEntity user, Long productId);
+
 }

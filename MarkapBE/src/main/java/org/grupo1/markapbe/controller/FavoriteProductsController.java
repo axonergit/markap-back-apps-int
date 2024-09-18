@@ -43,6 +43,11 @@ public class FavoriteProductsController {
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 
-
-    //borrar favorito
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<?> eliminarFavorito(@PathVariable Long productId, Principal principal) {
+        UserEntity userEntity = userRepository.findUserEntityByUsername(principal.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("El usuario no fue encontrado"));
+        productosFavoritoService.eliminarProductoFavorito(userEntity,productId);
+        return ResponseEntity.ok("El producto ha sido eliminado de la lista de favoritos");
+    }
 }

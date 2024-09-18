@@ -4,6 +4,7 @@ import org.grupo1.markapbe.controller.dto.ProductDTO;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.grupo1.markapbe.service.ProductService;
+import org.grupo1.markapbe.service.VisitedProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +25,9 @@ public class ProductController {
 
     @Autowired
     private UserRepository repositoryUsuario;
+
+    @Autowired
+    private VisitedProductService visitedProductService;
 
     @GetMapping
     public List<ProductDTO> getAllProductos() {
