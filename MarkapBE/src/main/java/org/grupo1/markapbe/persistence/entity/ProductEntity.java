@@ -1,6 +1,7 @@
 package org.grupo1.markapbe.persistence.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,6 +37,7 @@ public class ProductEntity {
     @Column(name = "stock")
     private int stock;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_creador_id")  // El nombre de la columna que contendrá la clave foránea en la tabla actual
     private UserEntity user;

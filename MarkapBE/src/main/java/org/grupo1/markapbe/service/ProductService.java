@@ -8,6 +8,7 @@ import org.grupo1.markapbe.persistence.entity.ProductEntity;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.CategoryRepository;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
+import org.grupo1.markapbe.persistence.repository.VisitedProductsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,8 +39,13 @@ public class ProductService {
     }
 
     public Optional<ProductDTO> getProductoById(Long id) {
-        return productoRepository.findById(id)
-                .map(this::convertToDto);
+        Optional<ProductEntity> producto = productoRepository.findById(id);
+        if (producto.isPresent()) {
+            visitedProductService.createVisitedProduct(producto.get());
+            return Optional.of(convertToDto(producto.get()));
+        } else {
+            return Optional.empty();
+        }
     }
 
 

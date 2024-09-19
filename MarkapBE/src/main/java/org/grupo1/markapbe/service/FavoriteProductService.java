@@ -33,7 +33,6 @@ public class FavoriteProductService {
     private ObjectMapper objectMapper;
 
 
-
     public List<ProductDTO> getLikes(UserEntity userEntity){
         List<FavoriteProductsEntity> productos = productosFavoritosRepository.findFavoriteProductsEntitiesByUser(userEntity).orElseThrow(() -> new EntityNotFoundException("No existen likes"));
         return productos.stream()
@@ -42,7 +41,6 @@ public class FavoriteProductService {
                 .collect(Collectors.toList());
     }
 
-    //create
     public FavoriteProductRequestDTO createFavoriteProduct(FavoriteProductRequestDTO productoRequestDTO, UserEntity usuarioLikeador) {
         ProductEntity product = productosRepository.findById(productoRequestDTO.id_product()).orElseThrow(() -> new EntityNotFoundException("El producto no existe"));
         FavoriteProductsEntity nuevoLike = FavoriteProductsEntity.builder().product(product).user(usuarioLikeador).build();
@@ -54,6 +52,11 @@ public class FavoriteProductService {
         return objectMapper.convertValue(producto,ProductDTO.class);
     }
 
-
+    public void eliminarProductoFavorito(UserEntity user, Long productId) {
+        FavoriteProductsEntity favorito = productosFavoritosRepository
+                .findByUserAndProductId(user, productId)
+                .orElseThrow(() -> new EntityNotFoundException("El producto no está en la lista de favoritos"));
+        productosFavoritosRepository.delete(favorito);
+    }
 
 }
