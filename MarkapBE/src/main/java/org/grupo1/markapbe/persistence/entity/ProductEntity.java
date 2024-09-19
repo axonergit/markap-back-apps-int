@@ -47,4 +47,6 @@ public class ProductEntity {
     //@JsonManagedReference y @JsonBackReference trabajan juntas para gestionar la serialización de relaciones bidireccionales, evitando ciclos infinitos.
     private CategoryEntity categoria;
 
+    private boolean destacado;
+
 }

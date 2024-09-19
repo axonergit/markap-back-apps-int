@@ -16,7 +16,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
     List<ProductEntity> findByCategoria_id(Long idCategoria);
 
+    List<ProductEntity> findByDestacadoTrue();
 
-    //Conviene tener un metodo para obtener los productos dado un nombre de categoria especifico?
-    //List<ProductEntity> findByidCategoria(Long id_categoria);
 }

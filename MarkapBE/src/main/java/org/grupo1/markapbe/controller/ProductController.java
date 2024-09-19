@@ -1,6 +1,7 @@
 package org.grupo1.markapbe.controller;
 
 import org.grupo1.markapbe.controller.dto.ProductDTO;
+import org.grupo1.markapbe.controller.dto.ProductResponseDTO;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.grupo1.markapbe.service.ProductService;
@@ -26,7 +27,7 @@ public class ProductController {
     private UserRepository repositoryUsuario;
 
     @GetMapping
-    public List<ProductDTO> getAllProductos() {
+    public List<ProductResponseDTO> getAllProductos() {
         return productoService.getAllProductos();
     }
 
@@ -37,10 +38,13 @@ public class ProductController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    //espero que funcione
+    @GetMapping("/destacados")
+    public List<ProductResponseDTO> getFeaturedProducts() {return productoService.getFeaturedproducts();}
+
+
     @GetMapping("/categoria/{id}")
-    public ResponseEntity<List<ProductDTO>> getProductoByIdCategoria(@PathVariable Long id) {
-        List<ProductDTO> productos = productoService.getProductosByIdCategoria(id);
+    public ResponseEntity<List<ProductResponseDTO>> getProductoByIdCategoria(@PathVariable Long id) {
+        List<ProductResponseDTO> productos = productoService.getProductosByIdCategoria(id);
 
         if (productos.isEmpty()) {
             return ResponseEntity.notFound().build(); // Devuelve 404 si no hay productos
@@ -52,20 +56,24 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductDTO> createProducto(@RequestBody ProductDTO productoRequestDTO, Principal principal) {
+    public ResponseEntity<ProductResponseDTO> createProducto(@RequestBody ProductDTO productoRequestDTO, Principal principal) {
         UserEntity user = repositoryUsuario.findUserEntityByUsername(principal.getName()).orElseThrow(() -> new UsernameNotFoundException("El usuario no fue encontrado"));
-        ProductDTO producto = productoService.createProducto(productoRequestDTO, user);
+        ProductResponseDTO producto = productoService.createProducto(productoRequestDTO);
         return ResponseEntity.ok(producto);
     }
 
-    @PutMapping("/{id}")
+   // Por hacer
+    /**
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede actualizar productos
-    public ResponseEntity<ProductDTO> updateProducto(@PathVariable Long id, @RequestBody ProductDTO productoRequestDTO) {
-        Optional<ProductDTO> updatedProducto = productoService.updateProducto(id, productoRequestDTO);
+    public ResponseEntity<ProductResponseDTO> updateProducto(@PathVariable Long id, @RequestBody ProductRequestUpdateDTO productoRequestUpdateDTO) {
+        Optional<ProductResponseDTO> updatedProducto = productoService.updateProducto(id, productoRequestUpdateDTO);
         return updatedProducto.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+    */
 
+    //revisar
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede eliminar productos
     public ResponseEntity<Void> deleteProducto(@PathVariable Long id) {
