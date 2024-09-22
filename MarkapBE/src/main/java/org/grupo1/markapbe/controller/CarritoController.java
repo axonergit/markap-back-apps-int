@@ -1,7 +1,7 @@
 package org.grupo1.markapbe.controller;
 
-import org.grupo1.markapbe.controller.dto.CarritoDTO;
-import org.grupo1.markapbe.controller.dto.ItemsCarritoDTO;
+import org.grupo1.markapbe.controller.dto.CarritoDTO.CarritoDTO;
+import org.grupo1.markapbe.controller.dto.CarritoDTO.ItemsCarritoDTO;
 import org.grupo1.markapbe.service.CarritoService;
 import org.grupo1.markapbe.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;

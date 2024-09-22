@@ -57,6 +57,7 @@ public class TestAuthController {
     }
 
 
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/getDetails")
     public ResponseEntity<?> getDetails(Principal principal) {

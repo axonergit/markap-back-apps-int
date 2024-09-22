@@ -1,4 +1,4 @@
-package org.grupo1.markapbe.controller.dto;
+package org.grupo1.markapbe.controller.dto.AuthDTO;
 
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

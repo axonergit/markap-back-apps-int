@@ -2,20 +2,16 @@ package org.grupo1.markapbe.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.grupo1.markapbe.controller.dto.FavoriteProductRequestDTO;
-import org.grupo1.markapbe.controller.dto.ProductDTO;
-import org.grupo1.markapbe.persistence.entity.CategoryEntity;
+import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
 import org.grupo1.markapbe.persistence.entity.FavoriteProductsEntity;
 import org.grupo1.markapbe.persistence.entity.ProductEntity;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
-import org.grupo1.markapbe.persistence.repository.CategoryRepository;
 import org.grupo1.markapbe.persistence.repository.FavoriteProductsRepository;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 

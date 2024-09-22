@@ -1,18 +1,14 @@
 package org.grupo1.markapbe.service;
 
 
-import jakarta.persistence.EntityNotFoundException;
-import org.grupo1.markapbe.controller.dto.UserDetailsResponse;
+import org.grupo1.markapbe.controller.dto.UserProfileDTO.UserDetailsResponse;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.entity.UserProfileEntity;
 import org.grupo1.markapbe.persistence.repository.UserProfileRepository;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UserProfileService {

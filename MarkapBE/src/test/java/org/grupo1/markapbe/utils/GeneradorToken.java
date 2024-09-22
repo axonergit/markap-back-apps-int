@@ -2,8 +2,8 @@ package org.grupo1.markapbe.utils;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.grupo1.markapbe.controller.dto.AuthLoginRequest;
-import org.grupo1.markapbe.controller.dto.AuthResponse;
+import org.grupo1.markapbe.controller.dto.AuthDTO.AuthLoginRequest;
+import org.grupo1.markapbe.controller.dto.AuthDTO.AuthResponse;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
