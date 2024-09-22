@@ -23,6 +23,7 @@ public class CarritoEntity {
     private boolean paymentStatus = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "userId", nullable = false)
     private UserEntity User;
 }

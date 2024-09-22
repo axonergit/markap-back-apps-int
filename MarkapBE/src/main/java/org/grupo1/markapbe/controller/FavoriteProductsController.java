@@ -29,25 +29,21 @@ public class FavoriteProductsController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/")
-    public ResponseEntity<?> createProductoFavorito(@RequestBody FavoriteProductRequestDTO productoRequestDTO, Principal principal) {
-        UserEntity userEntity = userRepository.findUserEntityByUsername(principal.getName()).orElseThrow(() -> new UsernameNotFoundException("El usuario no fue encontrado"));
-        productosFavoritoService.createFavoriteProduct(productoRequestDTO,userEntity);
+    @PostMapping("/{productId}")
+    public ResponseEntity<?> createProductoFavorito(@PathVariable Long productId) {
+        productosFavoritoService.createFavoriteProduct(productId);
         return ResponseEntity.ok("El producto se ha likeado correctamente");
     }
 
     @GetMapping("/")
     public ResponseEntity<?> conseguirFavoritos(Principal principal) {
-        UserEntity userEntity = userRepository.findUserEntityByUsername(principal.getName()).orElseThrow(() -> new UsernameNotFoundException("El usuario no fue encontrado"));
-        List<ProductDTO> productos = productosFavoritoService.getLikes(userEntity);
+        List<ProductDTO> productos = productosFavoritoService.getLikes();
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<?> eliminarFavorito(@PathVariable Long productId, Principal principal) {
-        UserEntity userEntity = userRepository.findUserEntityByUsername(principal.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("El usuario no fue encontrado"));
-        productosFavoritoService.eliminarProductoFavorito(userEntity,productId);
+    public ResponseEntity<?> eliminarFavorito(@PathVariable Long productId) {
+        productosFavoritoService.eliminarProductoFavorito(productId);
         return ResponseEntity.ok("El producto ha sido eliminado de la lista de favoritos");
     }
 }

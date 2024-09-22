@@ -32,8 +32,12 @@ public class FavoriteProductService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserService userService;
 
-    public List<ProductDTO> getLikes(UserEntity userEntity){
+
+    public List<ProductDTO> getLikes(){
+        UserEntity userEntity = userService.obtenerUsuarioPeticion();
         List<FavoriteProductsEntity> productos = productosFavoritosRepository.findFavoriteProductsEntitiesByUser(userEntity).orElseThrow(() -> new EntityNotFoundException("No existen likes"));
         return productos.stream()
                 .map(FavoriteProductsEntity::getProduct)
@@ -41,9 +45,10 @@ public class FavoriteProductService {
                 .collect(Collectors.toList());
     }
 
-    public FavoriteProductRequestDTO createFavoriteProduct(FavoriteProductRequestDTO productoRequestDTO, UserEntity usuarioLikeador) {
-        ProductEntity product = productosRepository.findById(productoRequestDTO.id_product()).orElseThrow(() -> new EntityNotFoundException("El producto no existe"));
-        FavoriteProductsEntity nuevoLike = FavoriteProductsEntity.builder().product(product).user(usuarioLikeador).build();
+    public FavoriteProductRequestDTO createFavoriteProduct(long productID) {
+        UserEntity userEntity = userService.obtenerUsuarioPeticion();
+        ProductEntity product = productosRepository.findById(productID).orElseThrow(() -> new EntityNotFoundException("El producto no existe"));
+        FavoriteProductsEntity nuevoLike = FavoriteProductsEntity.builder().product(product).user(userEntity).build();
         FavoriteProductsEntity likeGuardado = productosFavoritosRepository.save(nuevoLike);
         return new FavoriteProductRequestDTO(likeGuardado.getId());
     }
@@ -52,9 +57,10 @@ public class FavoriteProductService {
         return objectMapper.convertValue(producto,ProductDTO.class);
     }
 
-    public void eliminarProductoFavorito(UserEntity user, Long productId) {
+    public void eliminarProductoFavorito(Long productId) {
+        UserEntity userEntity = userService.obtenerUsuarioPeticion();
         FavoriteProductsEntity favorito = productosFavoritosRepository
-                .findByUserAndProductId(user, productId)
+                .findByUserAndProductId(userEntity, productId)
                 .orElseThrow(() -> new EntityNotFoundException("El producto no está en la lista de favoritos"));
         productosFavoritosRepository.delete(favorito);
     }

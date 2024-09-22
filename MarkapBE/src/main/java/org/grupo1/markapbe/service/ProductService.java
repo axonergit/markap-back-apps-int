@@ -1,6 +1,7 @@
 package org.grupo1.markapbe.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.grupo1.markapbe.controller.dto.ProductDTO;
 import org.grupo1.markapbe.controller.dto.ProductResponseDTO;
 import org.grupo1.markapbe.persistence.entity.CategoryEntity;
@@ -30,7 +31,12 @@ public class ProductService {
     private UserService usuarioService;
 
     @Autowired
+    private VisitedProductService visitedProductService;
+
+    @Autowired
     private ObjectMapper objectMapper;
+
+
 
     public List<ProductResponseDTO> getAllProductos() {
         return productoRepository.findAll().stream()
@@ -38,15 +44,22 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<ProductDTO> getProductoById(Long id) {
+    public Optional<ProductResponseDTO> getProductoById(Long id) {
         Optional<ProductEntity> producto = productoRepository.findById(id);
-        if (producto.isPresent()) {
-            visitedProductService.createVisitedProduct(producto.get());
-            return Optional.of(convertToDto(producto.get()));
-        } else {
+        try {
+            UserEntity usuario = usuarioService.obtenerUsuarioPeticion();
+
+            if (producto.isPresent()) {
+                visitedProductService.createVisitedProduct(producto.get());
+                return Optional.of(convertToDtoResponse(producto.get()));
+            } else {
+                return Optional.empty();
+            }
+        } catch (EntityNotFoundException e) {
             return Optional.empty();
         }
     }
+
 
 
     public List<ProductResponseDTO> getProductosByIdCategoria(Long id) {
@@ -104,15 +117,14 @@ public class ProductService {
 
 
     private ProductResponseDTO convertToDtoResponse(ProductEntity producto) {
-        String categoria = categoriaRepository.getById(producto.getCategoria().getId()).getNombreCategoria();
-
         return new ProductResponseDTO(
+                producto.getId(),
                 producto.getImagen(),
                 producto.getDescripcion(),
                 producto.getPrecio(),
                 producto.getDetalles(),
                 producto.getStock(),
-                categoria,
+                producto.getCategoria().getNombreCategoria(),
                 producto.getUser().getUsername());
     }
 
