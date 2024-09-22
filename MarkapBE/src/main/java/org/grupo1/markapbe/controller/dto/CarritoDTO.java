@@ -7,5 +7,4 @@ import java.util.Set;
 
 public record CarritoDTO(
         @NotBlank(message = "Debe tener ID.") Long id,
-        Set<ItemsCarritoEntity> items,
         boolean paymentStatus) {}

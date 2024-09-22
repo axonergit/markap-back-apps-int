@@ -95,4 +95,9 @@ public class ProductService {
                 .categoria(categoria)  // Asignar la categoría
                 .build();
     }
+
+    public ProductEntity getEntityById(Long id) {
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
+    }
 }

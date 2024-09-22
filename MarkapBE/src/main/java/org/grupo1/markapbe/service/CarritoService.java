@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.grupo1.markapbe.controller.dto.CarritoDTO;
 import org.grupo1.markapbe.controller.dto.ItemsCarritoDTO;
+import org.grupo1.markapbe.controller.dto.ProductDTO;
 import org.grupo1.markapbe.persistence.entity.CarritoEntity;
 import org.grupo1.markapbe.persistence.entity.ItemsCarritoEntity;
 import org.grupo1.markapbe.persistence.entity.ProductEntity;
@@ -16,6 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import javax.swing.text.html.Option;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,7 +34,7 @@ public class CarritoService {
     private ItemsCarritoRepository itemsCarritoRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @Autowired
     private UserService userService;
@@ -38,12 +42,103 @@ public class CarritoService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    /**
-     * Creates a new cart for the current user.
-     *
-     * @return CarritoEntity The entity representation of the newly created cart.
-     */
-    public CarritoEntity createCarrito() {
+    //Funciones Publicas: Retornan DTO o boolean;
+
+    public CarritoDTO getCarritoDTO(Long carritoId) {
+        return convertToDTO(getCarrito(carritoId));
+    }
+
+    public CarritoDTO getActiveCarritoDTO() {
+        UserEntity user = userService.obtenerUsuarioPeticion();
+        CarritoEntity carrito = carritoRepository.findActiveCarritoByUser(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Carrito no encontrado."));
+        return convertToDTO(carrito);
+    }
+
+    public List<CarritoDTO> getAllPaidCarritos() {
+        UserEntity user = userService.obtenerUsuarioPeticion();
+        Optional<List<CarritoEntity>> allCarritosOpt = carritoRepository.findPaidCarritos(user.getId());
+        if (allCarritosOpt.isPresent()) {
+            List<CarritoEntity> allCarritos = allCarritosOpt.get();
+            return allCarritos.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    public Page<ItemsCarritoDTO> getAllItemsByCarritoDTO(CarritoDTO carritoDTO, int pagina, int size) {
+        Optional<Page<ItemsCarritoEntity>> itemsCarritoEntity = getAllItemsByCarrito(carritoDTO.id(), pagina, size);
+        return itemsCarritoEntity.map(itemsCarritoEntities -> itemsCarritoEntities
+                .map(this::convertToDTO)).orElseGet(Page::empty);
+    }
+
+    public boolean deleteCarrito(CarritoDTO carritoDTO) {
+        CarritoEntity carrito = getCarrito(carritoDTO.id());
+        if (itemsCarritoRepository.existsById(carrito.getId()))
+            itemsCarritoRepository.deleteAllByCarritoId(carrito.getId());
+        carritoRepository.delete(carrito);
+        return true;
+    }
+
+    public boolean addItemToCarrito(Long productId, int amount) {
+        ProductEntity product = productService.getEntityById(productId);
+        if (product.getStock() < amount)
+            throw new IllegalArgumentException("No hay Stock Disponible.");
+        CarritoEntity carrito = getActiveCarrito();
+        Optional<ItemsCarritoEntity> itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(
+                carrito.getId(), productId);
+        if (itemCarrito.isEmpty()) {
+            ItemsCarritoEntity newItemCarrito = ItemsCarritoEntity.builder()
+                    .carrito(carrito)
+                    .product(product)
+                    .amount(amount)
+                    .build();
+            itemsCarritoRepository.save(newItemCarrito);
+        } else {
+            ItemsCarritoEntity itemsCarritoEntity = itemCarrito.get();
+            int sumaItems = itemsCarritoEntity.getAmount() + amount;
+            if (sumaItems > product.getStock()) {
+                throw new IllegalArgumentException("No hay Stock Disponible para el Total Requerido");
+            }
+            itemsCarritoEntity.setAmount(itemsCarritoEntity.getAmount() + amount);
+            itemsCarritoRepository.save(itemsCarritoEntity);
+        }
+        return true;
+    }
+
+    public boolean removeItemFromCarrito(Long productId, int amount) {
+        CarritoEntity carrito = getActiveCarrito();
+        ProductEntity product = productService.getEntityById(productId);
+        ItemsCarritoEntity itemCarrito = itemsCarritoRepository
+                .findByCarritoIdAndProductId(carrito.getId(), product.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Producto en el Carrito no encontrado."));
+        if (itemCarrito.getAmount() < amount) {
+            throw new IllegalArgumentException("No existe tal cantidad de Cantidad en el Carrito para eliminar.");
+        }
+        if (itemCarrito.getAmount() == amount) {
+            itemsCarritoRepository.delete(itemCarrito);
+        } else {
+            itemCarrito.setAmount(itemCarrito.getAmount() - amount);
+            itemsCarritoRepository.save(itemCarrito);
+        }
+        return true;
+    }
+
+    public boolean changeStatusCarritoToPaid() {
+        CarritoEntity carrito = getActiveCarrito();
+        carrito.setPaymentStatus(true);
+        carritoRepository.save(carrito);
+        return true;
+    }
+
+    public boolean existItemsIntoCarrito(Long carritoId){
+        return itemsCarritoRepository.existsByCarritoId(carritoId);
+    }
+
+    //Funciones Privadas: Trabaja con la Entidades, Manteniendo el Encapsulamiento.
+
+    private CarritoEntity createCarrito() {
         UserEntity user = userService.obtenerUsuarioPeticion();
         Optional<CarritoEntity> actualCarrito = carritoRepository.findActiveCarritoByUser(user.getId());
 
@@ -56,115 +151,20 @@ public class CarritoService {
         return carritoRepository.save(newCarrito);
     }
 
-    public CarritoDTO createCarritoDTO() {
-        CarritoEntity carrito = createCarrito();
-        return convertToDTO(carrito);
-    }
-
-    public CarritoEntity getActiveCarrito() {
+    private CarritoEntity getActiveCarrito() {
         UserEntity user = userService.obtenerUsuarioPeticion();
         return carritoRepository.findActiveCarritoByUser(user.getId())
                 .orElseGet(this::createCarrito);
     }
 
-    public CarritoDTO getActiveCarritoDTO() {
-        return convertToDTO(getActiveCarrito());
-    }
-
-
-    public boolean deleteActiveCarrito() {
-        try{
-            CarritoEntity carrito = getActiveCarrito();
-            carritoRepository.delete(carrito);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public Page<ItemsCarritoEntity> getAllItemsByCarrito(Long carritoId, int pagina, int size) {
-        Pageable pageable = PageRequest.of(pagina, size);
-        return itemsCarritoRepository.findAllItemsByCarritoId(carritoId, pageable)
-                .orElseThrow(() -> new EntityNotFoundException("Item carrito no encontrado."));
-    }
-
-    public Optional<Page<ItemsCarritoDTO>> getAllItemsByCarritoDTO(CarritoDTO carritoDTO, int pagina, int size) {
-        Page<ItemsCarritoEntity> itemsEntity = getAllItemsByCarrito(carritoDTO.id(), pagina, size);
-        Page<ItemsCarritoDTO> itemsDTO = itemsEntity.map(this::convertToDTO);
-        return Optional.of(itemsDTO);
-    }
-
-    public CarritoEntity getCarrito(Long carritoId) {
+    private CarritoEntity getCarrito(Long carritoId) {
         return carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new EntityNotFoundException("Carrito no encontrado."));
     }
 
-    public Optional<CarritoDTO> getCarritoDTO(Long carritoId) {
-        return Optional.of(convertToDTO(getCarrito(carritoId)));
-    }
-
-    public Optional<List<CarritoDTO>> getAllPaidCarritos() {
-        UserEntity user = userService.obtenerUsuarioPeticion();
-        Optional<List<CarritoEntity>> allCarritosOpt = carritoRepository.findPaidCarritos(user.getId());
-        if (allCarritosOpt.isPresent()) {
-            List<CarritoEntity> allCarritos = allCarritosOpt.get();
-            return Optional.of(allCarritos.stream()
-                    .map(this::convertToDTO)
-                    .collect(Collectors.toList()));
-        }
-        return Optional.empty();
-    }
-
-    public boolean existItemsIntoCarrito(Long carritoId){
-        return itemsCarritoRepository.existsByCarritoId(carritoId);
-    }
-
-    // ACCIONES
-
-    public CarritoDTO changeStatusCarritoToPaid() {
-        CarritoEntity carrito = getActiveCarrito();
-        carrito.setPaymentStatus(true);
-        return convertToDTO(carritoRepository.save(carrito));
-    }
-
-    public ItemsCarritoDTO addItemToCarrito(Long productId, int amount) {
-        CarritoEntity carrito = getActiveCarrito();
-        Optional<ItemsCarritoEntity> itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(
-                carrito.getId(), productId);
-
-        if (itemCarrito.isEmpty()) {
-            ProductEntity product = productRepository.findById(productId)
-                    .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado."));
-
-            ItemsCarritoEntity newItemCarrito = ItemsCarritoEntity.builder()
-                    .carrito(carrito)
-                    .product(product)
-                    .amount(amount)
-                    .build();
-            return convertToDTO(itemsCarritoRepository.save(newItemCarrito));
-        }
-
-        ItemsCarritoEntity itemCarritoEnt = itemCarrito.get();
-        itemCarritoEnt.setAmount(itemCarritoEnt.getAmount() + amount);
-        return convertToDTO(itemsCarritoRepository.save(itemCarritoEnt));
-    }
-
-    public ItemsCarritoDTO removeItemFromCarrito(Long productId, int amount) {
-        CarritoEntity carrito = getActiveCarrito();
-        ItemsCarritoEntity itemCarrito = itemsCarritoRepository.findByCarritoIdAndProductId(
-                        carrito.getId(), productId)
-                .orElseThrow(() -> new EntityNotFoundException("Item del Carrito no encontrado."));
-
-        if (itemCarrito.getAmount() < amount) {
-            throw new IllegalArgumentException("La cantidad a eliminar del Producto no puede ser mayor a lo ya existente en el Carrito");
-        }
-        if (itemCarrito.getAmount() == amount) {
-            itemsCarritoRepository.delete(itemCarrito);
-            return null;
-        }
-
-        itemCarrito.setAmount(itemCarrito.getAmount() - amount);
-        return convertToDTO(itemsCarritoRepository.save(itemCarrito));
+    private Optional<Page<ItemsCarritoEntity>> getAllItemsByCarrito(Long carritoId, int pagina, int size) {
+        Pageable pageable = PageRequest.of(pagina, size);
+        return itemsCarritoRepository.findAllByCarritoId(carritoId, pageable);
     }
 
     private CarritoDTO convertToDTO(CarritoEntity carritoEntity) {

@@ -1,5 +1,6 @@
 package org.grupo1.markapbe.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,8 +25,4 @@ public class CarritoEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private UserEntity User;
-
-    @OneToMany
-    @JoinColumn(name = "items_carrito")
-    private Set<ItemsCarritoEntity> itemsCarrito;
 }

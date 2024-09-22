@@ -16,11 +16,11 @@ public class ItemsCarritoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "carritoId", nullable = false)
     private CarritoEntity carrito;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "productId", nullable = false)
     private ProductEntity product;
 
