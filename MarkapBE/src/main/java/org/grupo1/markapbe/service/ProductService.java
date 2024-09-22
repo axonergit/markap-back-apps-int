@@ -128,4 +128,9 @@ public class ProductService {
                 .destacado(true)    // definir como hacemos que un producto sea destacado o no, dejo asi para probar
                 .build();
     }
+
+    public ProductEntity getEntityById(Long id) {
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
+    }
 }
