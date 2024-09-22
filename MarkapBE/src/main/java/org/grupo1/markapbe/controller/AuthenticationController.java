@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.grupo1.markapbe.controller.dto.AuthDTO.AuthCreateUserRequest;
 import org.grupo1.markapbe.controller.dto.AuthDTO.AuthLoginRequest;
+import org.grupo1.markapbe.controller.dto.AuthDTO.AuthResponse;
 import org.grupo1.markapbe.controller.dto.ErrorResponseDTO;
 import org.grupo1.markapbe.service.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,20 @@ public class AuthenticationController {
     }
 
 
-
+    @Operation(
+            summary = "Iniciar sesión",
+            description = "Este endpoint permite a un usuario iniciar sesión proporcionando su nombre de usuario y contraseña. Si las credenciales son correctas, devuelve un token JWT."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Inicio de sesión exitoso",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AuthResponse.class))}),
+            @ApiResponse(responseCode = "401", description = "No autorizado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida",
+                    content = @Content(mediaType = "application/json"))
+    })
     @PostMapping("/log-in")
     public ResponseEntity<?> login(@RequestBody @Valid AuthLoginRequest userRequest) {
         try {

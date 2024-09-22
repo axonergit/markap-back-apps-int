@@ -1,5 +1,8 @@
 package org.grupo1.markapbe.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.grupo1.markapbe.controller.dto.VisitedProductDTO;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
@@ -24,11 +27,23 @@ public class VisitedProductsController {
     @Autowired
     private VisitedProductService visitedProductService;
 
+    @Operation(summary = "Obtener productos visitados",
+            description = "Este endpoint devuelve una lista de productos visitados por el usuario, paginada por página.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de productos visitados obtenida exitosamente."),
+            @ApiResponse(responseCode = "404", description = "No se encontraron productos visitados para el usuario.")
+    })
     @GetMapping("/{page}")
     public ResponseEntity<List<VisitedProductDTO>> getVisitedProducts(@PathVariable int page) {
         return new ResponseEntity<>(visitedProductService.getVisited(page), HttpStatus.OK);
     }
 
+    @Operation(summary = "Obtener todos los productos visitados",
+            description = "Este endpoint devuelve una lista de todos los productos visitados por el usuario.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de productos visitados obtenida exitosamente."),
+            @ApiResponse(responseCode = "404", description = "No se encontraron productos visitados para el usuario.")
+    })
     @GetMapping("/")
     public ResponseEntity<List<VisitedProductDTO>> getAllVisitedProducts() {
         return new ResponseEntity<>(visitedProductService.getVisitedAll(), HttpStatus.OK);
