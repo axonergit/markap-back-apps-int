@@ -1,7 +1,7 @@
 package org.grupo1.markapbe.controller;
 
-import org.grupo1.markapbe.controller.dto.ProductDTO;
-import org.grupo1.markapbe.controller.dto.ProductResponseDTO;
+import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
+import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductResponseDTO;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.grupo1.markapbe.service.ProductService;

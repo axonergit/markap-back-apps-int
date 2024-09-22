@@ -1,4 +1,4 @@
-package org.grupo1.markapbe.controller.dto;
+package org.grupo1.markapbe.controller.dto.AuthDTO;
 
 import jakarta.validation.constraints.Size;
 import org.springframework.validation.annotation.Validated;

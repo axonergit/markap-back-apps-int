@@ -1,8 +1,8 @@
 package org.grupo1.markapbe.service;
 
-import org.grupo1.markapbe.controller.dto.AuthCreateUserRequest;
-import org.grupo1.markapbe.controller.dto.AuthLoginRequest;
-import org.grupo1.markapbe.controller.dto.AuthResponse;
+import org.grupo1.markapbe.controller.dto.AuthDTO.AuthCreateUserRequest;
+import org.grupo1.markapbe.controller.dto.AuthDTO.AuthLoginRequest;
+import org.grupo1.markapbe.controller.dto.AuthDTO.AuthResponse;
 import org.grupo1.markapbe.persistence.entity.*;
 import org.grupo1.markapbe.persistence.repository.RoleRepository;
 import org.grupo1.markapbe.persistence.repository.UserProfileRepository;
@@ -13,19 +13,15 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

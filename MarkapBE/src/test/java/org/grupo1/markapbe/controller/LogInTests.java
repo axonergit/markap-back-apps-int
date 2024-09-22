@@ -2,7 +2,7 @@ package org.grupo1.markapbe.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.grupo1.markapbe.controller.dto.AuthLoginRequest;
+import org.grupo1.markapbe.controller.dto.AuthDTO.AuthLoginRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
