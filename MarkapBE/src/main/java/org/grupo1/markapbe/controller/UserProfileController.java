@@ -1,6 +1,8 @@
 package org.grupo1.markapbe.controller;
 
-import org.grupo1.markapbe.controller.dto.UserDetailsResponse;
+import org.grupo1.markapbe.controller.dto.UserProfileDTO.*;
+import org.grupo1.markapbe.controller.dto.UserProfileDTO.UserDetailsResponse;
+import org.grupo1.markapbe.controller.dto.UserProfileDTO.UserProfileUpdateDTO;
 import org.grupo1.markapbe.controller.dto.VisitedProductDTO;
 import org.grupo1.markapbe.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +25,8 @@ public class UserProfileController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<UserDetailsResponse> updateUserProfile(@RequestBody UserDetailsResponse userDetailsResponse) {
-
+    public ResponseEntity<UserDetailsResponse> updateUserProfile(@RequestBody UserProfileUpdateDTO userProfileUpdateDTO) {
+        return new ResponseEntity<>(userProfileService.updateUserDetails(userProfileUpdateDTO), HttpStatus.OK);
     }
 
 
