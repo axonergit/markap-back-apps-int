@@ -1,6 +1,8 @@
 package org.grupo1.markapbe.controller.dto;
 
 
-public record UserDetailsResponse(String nombreCompleto, String email) {
+import java.time.LocalDate;
+
+public record UserDetailsResponse(String nombreCompleto, String email, LocalDate birthDate) {
 
 }
