@@ -1,6 +1,11 @@
 package org.grupo1.markapbe.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.grupo1.markapbe.controller.dto.AuthDTO.AuthCreateUserRequest;
 import org.grupo1.markapbe.controller.dto.AuthDTO.AuthLoginRequest;
@@ -24,6 +29,21 @@ public class AuthenticationController {
 
 
 
+
+    @Operation(
+            summary = "Registrar un nuevo usuario",
+            description = "Este endpoint permite registrar un nuevo usuario en el sistema proporcionando detalles como nombre, apellido, email, etc."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuario creado exitosamente",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AuthCreateUserRequest.class))}),
+            @ApiResponse(responseCode = "401", description = "No autorizado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida",
+                    content = @Content(mediaType = "application/json"))
+    })
     @PostMapping("/sign-up")
     public ResponseEntity<?> register(@RequestBody @Valid AuthCreateUserRequest authCreateUserRequest){
 
