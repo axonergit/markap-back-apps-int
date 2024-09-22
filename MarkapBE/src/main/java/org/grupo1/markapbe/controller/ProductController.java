@@ -8,8 +8,10 @@ import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductResponseDTO;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.grupo1.markapbe.service.ProductService;
+import org.grupo1.markapbe.service.UserService;
 import org.grupo1.markapbe.service.VisitedProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,7 +30,10 @@ public class ProductController {
     private ProductService productoService;
 
     @Autowired
-    private UserRepository repositoryUsuario;
+    private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private VisitedProductService visitedProductService;
@@ -97,13 +102,12 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductResponseDTO> createProducto(@RequestBody ProductDTO productoRequestDTO, Principal principal) {
-        UserEntity user = repositoryUsuario.findUserEntityByUsername(principal.getName()).orElseThrow(() -> new UsernameNotFoundException("El usuario no fue encontrado"));
         ProductResponseDTO producto = productoService.createProducto(productoRequestDTO);
         return ResponseEntity.ok(producto);
     }
 
    // Por hacer
-    /**
+
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede actualizar productos
     public ResponseEntity<ProductResponseDTO> updateProducto(@PathVariable Long id, @RequestBody ProductRequestUpdateDTO productoRequestUpdateDTO) {
@@ -111,7 +115,7 @@ public class ProductController {
         return updatedProducto.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-    */
+
 
     //revisar
     @Operation(summary = "Eliminar un producto",
@@ -130,4 +134,20 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> destacarProducto(@PathVariable Long id) {
+        boolean valor = productoService.featureProduct(id);
+
+        if (valor) {
+            return ResponseEntity.ok().build();
+        }
+
+        else {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
 }

@@ -110,6 +110,16 @@ public class ProductService {
         return false;
     }
 
+    public boolean featureProduct(Long id) {
+        ProductEntity producto = productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        producto.setDestacado(true);
+        productoRepository.save(producto);
+
+        return true;
+    }
+
     private ProductDTO convertToDto(ProductEntity producto) {
         return objectMapper.convertValue(producto, ProductDTO.class);
     }
