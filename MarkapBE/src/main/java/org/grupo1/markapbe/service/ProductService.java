@@ -3,6 +3,7 @@ package org.grupo1.markapbe.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
+import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductRequestUpdateDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductResponseDTO;
 import org.grupo1.markapbe.persistence.entity.CategoryEntity;
 import org.grupo1.markapbe.persistence.entity.ProductEntity;
@@ -87,18 +88,27 @@ public class ProductService {
 
     //revisar
 
-    public Optional<ProductDTO> updateProducto(Long id, ProductDTO productoRequestDTO) {
-        return productoRepository.findById(id).map(producto -> {
-            CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.categoria().getId())
-                    .orElseThrow(() -> new RuntimeException("Categoria not found"));
-            producto.setImagen(productoRequestDTO.imagen());
-            producto.setDescripcion(productoRequestDTO.descripcion());
-            producto.setPrecio(productoRequestDTO.precio());
-            producto.setDetalles(productoRequestDTO.detalles());
-            producto.setStock(productoRequestDTO.stock());
+    public ProductResponseDTO updateProducto(Long id, ProductRequestUpdateDTO productoRequestUpdateDTO) {
+        ProductEntity producto = productoRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        CategoryEntity categoria = categoriaRepository.findById(productoRequestUpdateDTO.categoria().getId())
+                .orElseThrow(() -> new RuntimeException("Categoria not found"));
+        UserEntity userCreador = usuarioService.obtenerUsuarioPeticion();
+
+        if (producto.getUser() == userCreador) {
+            producto.setImagen(productoRequestUpdateDTO.imagen());
+            producto.setDescripcion(productoRequestUpdateDTO.descripcion());
+            producto.setPrecio(productoRequestUpdateDTO.precio());
+            producto.setStock(productoRequestUpdateDTO.stock());
             producto.setCategoria(categoria);
-            return convertToDto(productoRepository.save(producto));
-        });
+
+            productoRepository.save(producto);
+
+            return convertToDtoResponse(producto);
+        }
+
+        else {
+            throw new RuntimeException("Usuario no es el propietario del producto");
+        }
     }
 
 

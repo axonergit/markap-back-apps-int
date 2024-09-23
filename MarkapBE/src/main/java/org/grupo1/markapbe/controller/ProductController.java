@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
+import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductRequestUpdateDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductResponseDTO;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
@@ -108,12 +109,11 @@ public class ProductController {
 
    // Por hacer
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede actualizar productos
     public ResponseEntity<ProductResponseDTO> updateProducto(@PathVariable Long id, @RequestBody ProductRequestUpdateDTO productoRequestUpdateDTO) {
-        Optional<ProductResponseDTO> updatedProducto = productoService.updateProducto(id, productoRequestUpdateDTO);
-        return updatedProducto.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        ProductResponseDTO updatedProducto = productoService.updateProducto(id, productoRequestUpdateDTO);
+        return new ResponseEntity<>(updatedProducto, HttpStatus.OK);
     }
 
 
@@ -135,7 +135,7 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> destacarProducto(@PathVariable Long id) {
         boolean valor = productoService.featureProduct(id);
