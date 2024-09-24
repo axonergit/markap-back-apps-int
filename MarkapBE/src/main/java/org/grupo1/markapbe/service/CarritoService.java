@@ -2,6 +2,7 @@ package org.grupo1.markapbe.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.grupo1.markapbe.controller.dto.CarritoDTO.CarritoDTO;
 import org.grupo1.markapbe.controller.dto.CarritoDTO.ItemsCarritoDTO;
 import org.grupo1.markapbe.persistence.entity.CarritoEntity;
@@ -125,6 +126,7 @@ public class CarritoService {
         return true;
     }
 
+    @Transactional(rollbackOn = Exception.class)
     public boolean changeStatusCarritoToPaid() {
         CarritoEntity carrito = getActiveCarrito();
         if (!checkItemsIntoProducts(carrito)) {
@@ -145,6 +147,9 @@ public class CarritoService {
             Long productId = item.getProduct().getId();
             ProductEntity product = productService.getEntityById(productId);
             if(item.getAmount() > product.getStock())
+                return false;
+            boolean ans = productService.consumeStock(productId, item.getAmount());
+            if (ans)
                 return false;
         }
         return true;
