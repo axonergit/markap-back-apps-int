@@ -144,8 +144,9 @@ public class CarritoService {
             Long productId = item.getProduct().getId();
             ProductEntity product = productService.getEntityById(productId);
             if(item.getAmount() > product.getStock()){
-                //Elimina del Carrito el Producto y retorna Falso
-                itemsCarritoRepository.delete(item);
+                //Ajusta la cantidad del productoen el Carrito y retorna Falso
+                int diferenciaStock = item.getAmount() - product.getStock();
+                removeItemFromCarrito(productId, diferenciaStock);
                 return false;
             }
         }
