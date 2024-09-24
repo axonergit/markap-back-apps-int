@@ -6,6 +6,8 @@ import org.grupo1.markapbe.controller.dto.ErrorResponseDTO;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -57,6 +59,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public  ResponseEntity<ErrorResponseDTO> handleBadCredentialsException(BadCredentialsException ex){
+        String errorMessage = ex.getMessage();
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(errorMessage);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public  ResponseEntity<ErrorResponseDTO> handleUsernameNotFoundException(UsernameNotFoundException ex){
+        String errorMessage = ex.getMessage();
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(errorMessage);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception ex) {

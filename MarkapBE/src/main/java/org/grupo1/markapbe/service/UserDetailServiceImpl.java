@@ -72,10 +72,11 @@ public class UserDetailServiceImpl implements UserDetailsService {
     public Authentication authenticate(String username, String password) {
         UserDetails userDetails = this.loadUserByUsername(username);
         if (userDetails == null) {
+            System.out.println("Nos metimos ACA");
             throw new BadCredentialsException("El usuario" + username + " no existe.");
         }
         if (!passwordEncoder.matches(password,userDetails.getPassword())) {
-            throw  new BadCredentialsException("La contraseña es incorrecta.");
+            throw new BadCredentialsException("La contraseña es incorrecta.");
         }
 
         return new UsernamePasswordAuthenticationToken(username,userDetails.getPassword(),userDetails.getAuthorities());
