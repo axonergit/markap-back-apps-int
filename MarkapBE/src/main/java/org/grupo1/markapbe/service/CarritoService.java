@@ -129,10 +129,8 @@ public class CarritoService {
     @Transactional(rollbackOn = Exception.class)
     public boolean changeStatusCarritoToPaid() {
         CarritoEntity carrito = getActiveCarrito();
-        if (!checkItemsIntoProducts(carrito)) {
+        if (!checkItemsIntoProducts(carrito))
             throw new IllegalArgumentException("No hay Stock Disponible de un item, se elimina el mismo del carrito.");
-
-        }
         carrito.setPaymentStatus(true);
         carritoRepository.save(carrito);
         return true;
@@ -142,18 +140,16 @@ public class CarritoService {
         return itemsCarritoRepository.existsByCarritoId(carritoId);
     }
 
-    public boolean checkItemsIntoProducts(CarritoEntity carrito){
+    public boolean updateExistingStockItems() {
+        CarritoEntity carrito = getActiveCarrito();
         List<ItemsCarritoEntity> allItems = itemsCarritoRepository.getItemsCarritoEntitiesByCarrito(carrito);
         for (ItemsCarritoEntity item : allItems) {
             Long productId = item.getProduct().getId();
             ProductEntity product = productService.getEntityById(productId);
             if(item.getAmount() > product.getStock()) {
-                removeItemFromCarrito(productId, item.getAmount());
-                return false;
+                int diff = item.getAmount() - product.getStock();
+                removeItemFromCarrito(productId, diff);
             }
-            boolean stockModified = productService.consumeStock(productId, item.getAmount());
-            if (!stockModified)
-                return false;
         }
         return true;
     }
@@ -199,5 +195,19 @@ public class CarritoService {
         return objectMapper.convertValue(itemsCarritoEntity, ItemsCarritoDTO.class);
     }
 
+    private boolean checkItemsIntoProducts(CarritoEntity carrito){
+        List<ItemsCarritoEntity> allItems = itemsCarritoRepository.getItemsCarritoEntitiesByCarrito(carrito);
+        for (ItemsCarritoEntity item : allItems) {
+            Long productId = item.getProduct().getId();
+            ProductEntity product = productService.getEntityById(productId);
+            if(item.getAmount() > product.getStock()) {
+                return false;
+            }
+            boolean stockModified = productService.consumeStock(productId, item.getAmount());
+            if (!stockModified)
+                return false;
+        }
+        return true;
+    }
 
 }

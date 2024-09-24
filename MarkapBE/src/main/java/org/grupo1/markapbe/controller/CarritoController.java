@@ -81,14 +81,20 @@ public class CarritoController {
     public ResponseEntity<?> updateCarritoStatus() {
         Map<String, Object> response = new HashMap<>();
         Long carritoId = carritoService.getActiveCarritoDTO().id();
-        if (carritoService.changeStatusCarritoToPaid()) {
-            response.put("message", "Estado de Carrito Actualizado");
-            response.put("carrito", carritoService.getCarritoDTO(carritoId));
-        } else {
+        try {
+            if (carritoService.changeStatusCarritoToPaid()) {
+                response.put("message", "Estado de Carrito Actualizado");
+                response.put("carrito", carritoService.getCarritoDTO(carritoId));
+            }
+        }
+        catch (Exception e) {
             response.put("message", "Error al Actualizar");
             response.put("carrito", carritoService.getCarritoDTO(carritoId));
+            carritoService.updateExistingStockItems();
         }
-        return ResponseEntity.ok(response);
+        finally {
+            return ResponseEntity.ok(response);
+        }
     }
 
     @Operation(summary = "Obtener historial de carritos pagados",
