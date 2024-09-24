@@ -72,10 +72,11 @@ public class UserDetailServiceImpl implements UserDetailsService {
     public Authentication authenticate(String username, String password) {
         UserDetails userDetails = this.loadUserByUsername(username);
         if (userDetails == null) {
+            System.out.println("Nos metimos ACA");
             throw new BadCredentialsException("El usuario" + username + " no existe.");
         }
         if (!passwordEncoder.matches(password,userDetails.getPassword())) {
-            throw  new BadCredentialsException("La contraseña es incorrecta.");
+            throw new BadCredentialsException("La contraseña es incorrecta.");
         }
 
         return new UsernamePasswordAuthenticationToken(username,userDetails.getPassword(),userDetails.getAuthorities());
@@ -89,8 +90,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
         String email = authCreateUserRequest.email();
         LocalDate birthDate = authCreateUserRequest.birthDate();
 
-        // List<String> roleRequest = authCreateUserRequest.roleRequest().roleListName();
-        // Set<RoleEntity> roleEntitySet = roleRepository.findRoleEntitiesByRoleEnumIn(roleRequest).stream().collect(Collectors.toSet());
 
         Set<RoleEntity> roleEntitySet = roleRepository.findRoleEntityByRoleEnum(RoleEnum.USUARIO).stream().collect(Collectors.toSet());
         if (roleEntitySet.isEmpty()){

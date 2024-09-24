@@ -41,9 +41,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
                     http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
-                    http.requestMatchers(HttpMethod.GET, "/carrito/**").authenticated();
-                    http.requestMatchers(HttpMethod.POST, "/carrito/**").authenticated();
-                    http.requestMatchers(HttpMethod.PUT, "/carrito/**").authenticated();
+                    http.requestMatchers("/productos/liked/**").authenticated();
+                    http.requestMatchers("/carrito/**").authenticated();
+                    http.requestMatchers("/productos/visited/**").authenticated();
                     http.anyRequest().permitAll();
                 })
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))

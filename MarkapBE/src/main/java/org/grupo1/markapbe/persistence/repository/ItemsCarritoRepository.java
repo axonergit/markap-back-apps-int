@@ -1,6 +1,8 @@
 package org.grupo1.markapbe.persistence.repository;
 
+import org.grupo1.markapbe.persistence.entity.CarritoEntity;
 import org.grupo1.markapbe.persistence.entity.ItemsCarritoEntity;
+import org.grupo1.markapbe.persistence.entity.ProductEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,6 +27,8 @@ public interface ItemsCarritoRepository extends JpaRepository<ItemsCarritoEntity
     void deleteAllByCarritoId(@Param("carritoId") Long carritoId);
 
     boolean existsByCarritoId(@Param("carritoId") Long carritoId);
+
+    List<ItemsCarritoEntity> getItemsCarritoEntitiesByCarrito(CarritoEntity carrito);
 
 
 }

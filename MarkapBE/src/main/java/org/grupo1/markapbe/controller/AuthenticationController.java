@@ -27,10 +27,6 @@ public class AuthenticationController {
 
     @Autowired
     private UserDetailServiceImpl userDetailService;
-
-
-
-
     @Operation(
             summary = "Registrar un nuevo usuario",
             description = "Este endpoint permite registrar un nuevo usuario en el sistema proporcionando detalles como nombre, apellido, email, etc."
@@ -47,12 +43,8 @@ public class AuthenticationController {
     })
     @PostMapping("/sign-up")
     public ResponseEntity<?> register(@RequestBody @Valid AuthCreateUserRequest authCreateUserRequest){
+        return new ResponseEntity<>(this.userDetailService.createUser(authCreateUserRequest),HttpStatus.CREATED);
 
-        try {
-        return new ResponseEntity<>(this.userDetailService.createUser(authCreateUserRequest),HttpStatus.CREATED);}
-        catch (Exception ex) {
-            return new ResponseEntity<>(new ErrorResponseDTO(ex.getMessage()),HttpStatus.UNAUTHORIZED);
-        }
     }
 
 
@@ -72,10 +64,6 @@ public class AuthenticationController {
     })
     @PostMapping("/log-in")
     public ResponseEntity<?> login(@RequestBody @Valid AuthLoginRequest userRequest) {
-        try {
-        return new ResponseEntity<>(this.userDetailService.loginUser(userRequest), HttpStatus.OK);}
-        catch (Exception ex) {
-            return new ResponseEntity<>(new ErrorResponseDTO(ex.getMessage()),HttpStatus.UNAUTHORIZED);
-        }
+        return new ResponseEntity<>(this.userDetailService.loginUser(userRequest), HttpStatus.OK);
     }
 }

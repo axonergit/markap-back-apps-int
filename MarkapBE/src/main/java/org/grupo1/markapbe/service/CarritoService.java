@@ -2,6 +2,7 @@ package org.grupo1.markapbe.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.grupo1.markapbe.controller.dto.CarritoDTO.CarritoDTO;
 import org.grupo1.markapbe.controller.dto.CarritoDTO.ItemsCarritoDTO;
 import org.grupo1.markapbe.persistence.entity.CarritoEntity;
@@ -122,11 +123,16 @@ public class CarritoService {
             itemCarrito.setAmount(itemCarrito.getAmount() - amount);
             itemsCarritoRepository.save(itemCarrito);
         }
+        if (!existItemsIntoCarrito(carrito.getId()))
+            carritoRepository.delete(carrito);
         return true;
     }
 
+    @Transactional(rollbackOn = Exception.class)
     public boolean changeStatusCarritoToPaid() {
         CarritoEntity carrito = getActiveCarrito();
+        if (!checkItemsIntoProducts(carrito))
+            throw new IllegalArgumentException("No hay Stock Disponible de un item, se elimina el mismo del carrito.");
         carrito.setPaymentStatus(true);
         carritoRepository.save(carrito);
         return true;
@@ -136,13 +142,16 @@ public class CarritoService {
         return itemsCarritoRepository.existsByCarritoId(carritoId);
     }
 
-    public boolean checkItemsIntoProducts(Long carritoId){
-        List<ItemsCarritoEntity> allItems = getAllItemsFromCarrito(carritoId);
+    public boolean updateExistingStockItems() {
+        CarritoEntity carrito = getActiveCarrito();
+        List<ItemsCarritoEntity> allItems = itemsCarritoRepository.getItemsCarritoEntitiesByCarrito(carrito);
         for (ItemsCarritoEntity item : allItems) {
             Long productId = item.getProduct().getId();
             ProductEntity product = productService.getEntityById(productId);
-            if(item.getAmount() > product.getStock())
-                return false;
+            if(item.getAmount() > product.getStock()) {
+                int diff = item.getAmount() - product.getStock();
+                removeItemFromCarrito(productId, diff);
+            }
         }
         return true;
     }
@@ -178,19 +187,7 @@ public class CarritoService {
         return itemsCarritoRepository.findAllByCarritoId(carritoId, pageable);
     }
 
-    private List<ItemsCarritoEntity> getAllItemsFromCarrito(Long carritoId) {
-        int page = 0;
-        int size = 10;
-        List<ItemsCarritoEntity> itemsCarritoList = new ArrayList<>();
-        Optional<Page<ItemsCarritoEntity>> itemsCarritoPage;
 
-        do {
-            itemsCarritoPage = getAllItemsByCarrito(carritoId, page, size);
-            itemsCarritoPage.ifPresent(itemsCarritoEntities -> itemsCarritoList.addAll(itemsCarritoEntities.getContent()));
-            page++;
-        } while (itemsCarritoPage.isPresent() && itemsCarritoPage.get().hasNext()); //Chequea si existe algo Optional y si tiene siguiente.
-        return itemsCarritoList;
-    }
 
     private CarritoDTO convertToDTO(CarritoEntity carritoEntity) {
         return objectMapper.convertValue(carritoEntity, CarritoDTO.class);
@@ -200,5 +197,19 @@ public class CarritoService {
         return objectMapper.convertValue(itemsCarritoEntity, ItemsCarritoDTO.class);
     }
 
+    private boolean checkItemsIntoProducts(CarritoEntity carrito){
+        List<ItemsCarritoEntity> allItems = itemsCarritoRepository.getItemsCarritoEntitiesByCarrito(carrito);
+        for (ItemsCarritoEntity item : allItems) {
+            Long productId = item.getProduct().getId();
+            ProductEntity product = productService.getEntityById(productId);
+            if(item.getAmount() > product.getStock()) {
+                return false;
+            }
+            boolean stockModified = productService.consumeStock(productId, item.getAmount());
+            if (!stockModified)
+                return false;
+        }
+        return true;
+    }
 
 }
