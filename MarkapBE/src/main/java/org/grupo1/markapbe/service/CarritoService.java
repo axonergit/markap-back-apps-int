@@ -127,8 +127,26 @@ public class CarritoService {
 
     public boolean changeStatusCarritoToPaid() {
         CarritoEntity carrito = getActiveCarrito();
+        if (!validateCarritoStock(carrito)) {
+            throw new IllegalArgumentException("No hay Stock Disponible de un item, se elimina el mismo del carrito.");
+        }
         carrito.setPaymentStatus(true);
         carritoRepository.save(carrito);
+        return true;
+    }
+
+    // Validacion de carrito, devuelve true cuando el carrito tiene el stock que solicita en el checkout
+    private boolean validateCarritoStock(CarritoEntity carrito) {
+        for (int i = 0; ; i++) {
+            Optional<Page<ItemsCarritoEntity>> itemCarrito = getAllItemsByCarrito(carrito.getId(), i, 1);
+            if (itemCarrito.isEmpty())
+                break;
+            ProductEntity product = productService.getEntityById(itemCarrito.get().getContent().getProductID());
+            if ((product.getStock() - itemCarrito.get().getAmount()) < 0) {
+                removeItemFromCarrito(product.getProductID(), itemCarrito.getAmount());
+                return false;
+            }
+        }
         return true;
     }
 
