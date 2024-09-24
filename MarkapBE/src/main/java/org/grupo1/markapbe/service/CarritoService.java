@@ -127,6 +127,8 @@ public class CarritoService {
 
     public boolean changeStatusCarritoToPaid() {
         CarritoEntity carrito = getActiveCarrito();
+        if(!checkItemsIntoProducts(carrito.getId()))
+            throw new IllegalArgumentException("No hay Stock Disponible.");
         carrito.setPaymentStatus(true);
         carritoRepository.save(carrito);
         return true;
