@@ -5,6 +5,6 @@ import org.grupo1.markapbe.persistence.entity.UserEntity;
 
 import java.math.BigDecimal;
 
-public record ProductDTO(Long id,String imagen, String descripcion, BigDecimal precio, String detalles, int stock, CategoryEntity categoria) {
+public record ProductDTO(String imagen, String descripcion, BigDecimal precio, String detalles, int stock, CategoryEntity categoria) {
 
 }
