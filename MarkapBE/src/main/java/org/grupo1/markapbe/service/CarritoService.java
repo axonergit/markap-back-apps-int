@@ -131,6 +131,7 @@ public class CarritoService {
         CarritoEntity carrito = getActiveCarrito();
         if (!checkItemsIntoProducts(carrito)) {
             throw new IllegalArgumentException("No hay Stock Disponible de un item, se elimina el mismo del carrito.");
+
         }
         carrito.setPaymentStatus(true);
         carritoRepository.save(carrito);
@@ -146,10 +147,12 @@ public class CarritoService {
         for (ItemsCarritoEntity item : allItems) {
             Long productId = item.getProduct().getId();
             ProductEntity product = productService.getEntityById(productId);
-            if(item.getAmount() > product.getStock())
+            if(item.getAmount() > product.getStock()) {
+                removeItemFromCarrito(productId, item.getAmount());
                 return false;
-            boolean ans = productService.consumeStock(productId, item.getAmount());
-            if (ans)
+            }
+            boolean stockModified = productService.consumeStock(productId, item.getAmount());
+            if (!stockModified)
                 return false;
         }
         return true;
