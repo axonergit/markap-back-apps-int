@@ -112,21 +112,12 @@ public class ProductController {
         return ResponseEntity.ok(producto);
     }
 
-    // Por hacer
-
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede actualizar productos
     public ResponseEntity<?> updateProducto(@PathVariable Long id, @RequestBody ProductRequestUpdateDTO productoRequestUpdateDTO) {
-        Optional<ProductEntity> producto = productoRepository.findById(id);
 
-        if (producto.get().getUser().getUsername().equals(userService.obtenerUsuarioPeticion().getUsername())) {
-            ProductResponseDTO updatedProducto = productoService.updateProducto(id, productoRequestUpdateDTO);
-            return new ResponseEntity<>(updatedProducto, HttpStatus.OK);
-        }
-
-        else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error, no eres el usuario propietario");
-        }
+        ProductResponseDTO updatedProducto = productoService.updateProducto(id, productoRequestUpdateDTO);
+        return new ResponseEntity<>(updatedProducto, HttpStatus.OK);
 
     }
 
@@ -142,20 +133,13 @@ public class ProductController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede eliminar productos
     public ResponseEntity<String> deleteProducto(@PathVariable Long id) {
-        Optional<ProductEntity> producto = productoRepository.findById(id);
-
-        if (producto.get().getUser().getUsername().equals(userService.obtenerUsuarioPeticion().getUsername())) {
-            if (productoService.deleteProducto(id)) {
-                return ResponseEntity.ok("Producto eliminado exitosamente");
-            } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error, producto no encontrado");
-            }
-        }
-
-        else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error, no eres el usuario propietario");
+        if (productoService.deleteProducto(id)) {
+            return ResponseEntity.ok("Producto eliminado exitosamente");
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error, este producto no te pertenece");
         }
     }
+
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

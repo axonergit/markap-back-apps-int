@@ -123,7 +123,9 @@ public class ProductService {
 
 
     public boolean deleteProducto(Long id) {
-        if (productoRepository.existsById(id)) {
+        ProductEntity producto = productoRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        UserEntity userCreador = usuarioService.obtenerUsuarioPeticion();
+        if (producto.getUser() == userCreador) {
             productoRepository.deleteById(id);
             return true;
         }
