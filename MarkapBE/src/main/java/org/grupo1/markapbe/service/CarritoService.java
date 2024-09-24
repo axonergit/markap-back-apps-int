@@ -123,6 +123,8 @@ public class CarritoService {
             itemCarrito.setAmount(itemCarrito.getAmount() - amount);
             itemsCarritoRepository.save(itemCarrito);
         }
+        if (existItemsIntoCarrito(carrito.getId()))
+            carritoRepository.delete(carrito);
         return true;
     }
 
