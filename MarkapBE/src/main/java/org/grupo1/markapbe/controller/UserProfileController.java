@@ -11,6 +11,7 @@ import org.grupo1.markapbe.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +34,10 @@ public class UserProfileController {
         return new ResponseEntity<>(userProfileService.getUserDetails(username), HttpStatus.OK);
     }
 
+
+
+
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Actualizar perfil de usuario",
             description = "Este endpoint permite actualizar los detalles del perfil de un usuario autenticado.")
     @ApiResponses(value = {
