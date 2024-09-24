@@ -127,7 +127,7 @@ public class CarritoService {
 
     public boolean changeStatusCarritoToPaid() {
         CarritoEntity carrito = getActiveCarrito();
-        if (!checkItemsIntoProducts(carrito.getId())) {
+        if (!checkItemsIntoProducts(carrito)) {
             throw new IllegalArgumentException("No hay Stock Disponible de un item, se elimina el mismo del carrito.");
         }
         carrito.setPaymentStatus(true);
@@ -139,8 +139,8 @@ public class CarritoService {
         return itemsCarritoRepository.existsByCarritoId(carritoId);
     }
 
-    public boolean checkItemsIntoProducts(Long carritoId){
-        List<ItemsCarritoEntity> allItems = getAllItemsFromCarrito(carritoId);
+    public boolean checkItemsIntoProducts(CarritoEntity carrito){
+        List<ItemsCarritoEntity> allItems = itemsCarritoRepository.getItemsCarritoEntitiesByCarrito(carrito);
         for (ItemsCarritoEntity item : allItems) {
             Long productId = item.getProduct().getId();
             ProductEntity product = productService.getEntityById(productId);
@@ -181,19 +181,7 @@ public class CarritoService {
         return itemsCarritoRepository.findAllByCarritoId(carritoId, pageable);
     }
 
-    private List<ItemsCarritoEntity> getAllItemsFromCarrito(Long carritoId) {
-        int page = 0;
-        int size = 10;
-        List<ItemsCarritoEntity> itemsCarritoList = new ArrayList<>();
-        Optional<Page<ItemsCarritoEntity>> itemsCarritoPage;
 
-        do {
-            itemsCarritoPage = getAllItemsByCarrito(carritoId, page, size);
-            itemsCarritoPage.ifPresent(itemsCarritoEntities -> itemsCarritoList.addAll(itemsCarritoEntities.getContent()));
-            page++;
-        } while (itemsCarritoPage.isPresent() && itemsCarritoPage.get().hasNext()); //Chequea si existe algo Optional y si tiene siguiente.
-        return itemsCarritoList;
-    }
 
     private CarritoDTO convertToDTO(CarritoEntity carritoEntity) {
         return objectMapper.convertValue(carritoEntity, CarritoDTO.class);
