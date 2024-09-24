@@ -52,7 +52,7 @@ class SignUpTests {
 
     @Test
     void RegistrarContraseniaVacia() throws Exception {
-        AuthCreateUserRequest request = new AuthCreateUserRequest("TomasP", "", "Tomas", "Perez","tperez@mail.com", LocalDate.of(2004,5,10));
+        AuthCreateUserRequest request = new AuthCreateUserRequest("TomasP", null, "Tomas", "Perez","tperez@mail.com", LocalDate.of(2004,5,10));
         String requestJson = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(post("/auth/sign-up")
