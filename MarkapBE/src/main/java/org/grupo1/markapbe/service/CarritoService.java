@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -67,8 +68,10 @@ public class CarritoService {
     public Page<ItemsCarritoDTO> getAllItemsByCarritoDTO(CarritoDTO carritoDTO, int pagina, int size) {
         Optional<Page<ItemsCarritoEntity>> itemsCarritoEntity = getAllItemsByCarrito(carritoDTO.id(), pagina, size);
         return itemsCarritoEntity.map(itemsCarritoEntities -> itemsCarritoEntities
-                .map(this::convertToDTO)).orElseGet(Page::empty);
+                .map(this::convertToDTO))
+                .orElseGet(Page::empty);
     }
+
 
     public boolean deleteCarrito(CarritoDTO carritoDTO) {
         CarritoEntity carrito = getCarrito(carritoDTO.id());
@@ -133,6 +136,17 @@ public class CarritoService {
         return itemsCarritoRepository.existsByCarritoId(carritoId);
     }
 
+    public boolean checkItemsIntoProducts(Long carritoId){
+        List<ItemsCarritoEntity> allItems = getAllItemsFromCarrito(carritoId);
+        for (ItemsCarritoEntity item : allItems) {
+            Long productId = item.getProduct().getId();
+            ProductEntity product = productService.getEntityById(productId);
+            if(item.getAmount() > product.getStock())
+                return false;
+        }
+        return true;
+    }
+
     //Funciones Privadas: Trabaja con la Entidades, Manteniendo el Encapsulamiento.
 
     private CarritoEntity createCarrito() {
@@ -164,6 +178,20 @@ public class CarritoService {
         return itemsCarritoRepository.findAllByCarritoId(carritoId, pageable);
     }
 
+    private List<ItemsCarritoEntity> getAllItemsFromCarrito(Long carritoId) {
+        int page = 0;
+        int size = 10;
+        List<ItemsCarritoEntity> itemsCarritoList = new ArrayList<>();
+        Optional<Page<ItemsCarritoEntity>> itemsCarritoPage;
+
+        do {
+            itemsCarritoPage = getAllItemsByCarrito(carritoId, page, size);
+            itemsCarritoPage.ifPresent(itemsCarritoEntities -> itemsCarritoList.addAll(itemsCarritoEntities.getContent()));
+            page++;
+        } while (itemsCarritoPage.isPresent() && itemsCarritoPage.get().hasNext()); //Chequea si existe algo Optional y si tiene siguiente.
+        return itemsCarritoList;
+    }
+
     private CarritoDTO convertToDTO(CarritoEntity carritoEntity) {
         return objectMapper.convertValue(carritoEntity, CarritoDTO.class);
     }
@@ -171,4 +199,6 @@ public class CarritoService {
     private ItemsCarritoDTO convertToDTO(ItemsCarritoEntity itemsCarritoEntity) {
         return objectMapper.convertValue(itemsCarritoEntity, ItemsCarritoDTO.class);
     }
+
+
 }
