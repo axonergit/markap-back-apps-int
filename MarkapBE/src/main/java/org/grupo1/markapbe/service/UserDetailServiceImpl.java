@@ -89,8 +89,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
         String email = authCreateUserRequest.email();
         LocalDate birthDate = authCreateUserRequest.birthDate();
 
-        // List<String> roleRequest = authCreateUserRequest.roleRequest().roleListName();
-        // Set<RoleEntity> roleEntitySet = roleRepository.findRoleEntitiesByRoleEnumIn(roleRequest).stream().collect(Collectors.toSet());
 
         Set<RoleEntity> roleEntitySet = roleRepository.findRoleEntityByRoleEnum(RoleEnum.USUARIO).stream().collect(Collectors.toSet());
         if (roleEntitySet.isEmpty()){

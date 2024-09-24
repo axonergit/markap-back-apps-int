@@ -14,7 +14,9 @@ import java.util.Date;
 @Setter
 @Builder
 @Entity
-@Table(name = "user_profile")
+@Table(name = "user_profile", uniqueConstraints = {
+        @UniqueConstraint(name = "UK_EMAIL",columnNames = "email")
+})
 public class UserProfileEntity {
 
     @Id
@@ -22,7 +24,7 @@ public class UserProfileEntity {
     private Long id;
 
     @Email
-    @Column(name = "email",updatable = false,unique = true)
+    @Column(name = "email",updatable = false)
     private String email;
 
     @Column(name = "name")
