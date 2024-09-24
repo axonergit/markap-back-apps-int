@@ -9,7 +9,6 @@ import org.grupo1.markapbe.controller.dto.CarritoDTO.CarritoDTO;
 import org.grupo1.markapbe.controller.dto.CarritoDTO.ItemsCarritoDTO;
 import org.grupo1.markapbe.controller.dto.ErrorResponseDTO;
 import org.grupo1.markapbe.service.CarritoService;
-import org.grupo1.markapbe.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +22,6 @@ public class CarritoController {
 
     @Autowired
     private CarritoService carritoService;
-
-    @Autowired
-    private ProductService productService;
 
     @Operation(
             summary = "Obtener carrito activo",
@@ -81,14 +77,19 @@ public class CarritoController {
     public ResponseEntity<?> updateCarritoStatus() {
         Map<String, Object> response = new HashMap<>();
         Long carritoId = carritoService.getActiveCarritoDTO().id();
-        if (carritoService.changeStatusCarritoToPaid()) {
-            response.put("message", "Estado de Carrito Actualizado");
-            response.put("carrito", carritoService.getCarritoDTO(carritoId));
-        } else {
-            response.put("message", "Error al Actualizar");
-            response.put("carrito", carritoService.getCarritoDTO(carritoId));
+        try {
+            if (carritoService.changeStatusCarritoToPaid()) {
+                response.put("message", "Estado de Carrito Actualizado");
+                response.put("carrito", carritoService.getCarritoDTO(carritoId));
+            }
         }
-        return ResponseEntity.ok(response);
+        catch (Exception e) {
+            response.put("message", "Error al Actualizar: "+e);
+            response.put("carrito", carritoService.getCarritoDTO(carritoId));
+            carritoService.updateExistingStockItems();
+        } finally {
+            return ResponseEntity.ok(response);
+        }
     }
 
     @Operation(summary = "Obtener historial de carritos pagados",
