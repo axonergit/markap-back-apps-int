@@ -143,8 +143,11 @@ public class CarritoService {
         for (ItemsCarritoEntity item : allItems) {
             Long productId = item.getProduct().getId();
             ProductEntity product = productService.getEntityById(productId);
-            if(item.getAmount() > product.getStock())
+            if(item.getAmount() > product.getStock()){
+                //Elimina del Carrito el Producto y retorna Falso
+                itemsCarritoRepository.delete(item);
                 return false;
+            }
         }
         return true;
     }
