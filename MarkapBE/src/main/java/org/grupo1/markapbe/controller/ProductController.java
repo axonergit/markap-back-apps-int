@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductRequestUpdateDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductResponseDTO;
+import org.grupo1.markapbe.persistence.entity.ProductEntity;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
+import org.grupo1.markapbe.persistence.repository.ProductRepository;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.grupo1.markapbe.service.ProductService;
 import org.grupo1.markapbe.service.UserService;
@@ -29,6 +31,9 @@ public class ProductController {
 
     @Autowired
     private ProductService productoService;
+
+    @Autowired
+    private ProductRepository productoRepository;
 
     @Autowired
     private UserService userService;
@@ -107,13 +112,22 @@ public class ProductController {
         return ResponseEntity.ok(producto);
     }
 
-   // Por hacer
+    // Por hacer
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede actualizar productos
-    public ResponseEntity<ProductResponseDTO> updateProducto(@PathVariable Long id, @RequestBody ProductRequestUpdateDTO productoRequestUpdateDTO) {
-        ProductResponseDTO updatedProducto = productoService.updateProducto(id, productoRequestUpdateDTO);
-        return new ResponseEntity<>(updatedProducto, HttpStatus.OK);
+    public ResponseEntity<?> updateProducto(@PathVariable Long id, @RequestBody ProductRequestUpdateDTO productoRequestUpdateDTO) {
+        Optional<ProductEntity> producto = productoRepository.findById(id);
+
+        if (producto.get().getUser().getUsername().equals(userService.obtenerUsuarioPeticion().getUsername())) {
+            ProductResponseDTO updatedProducto = productoService.updateProducto(id, productoRequestUpdateDTO);
+            return new ResponseEntity<>(updatedProducto, HttpStatus.OK);
+        }
+
+        else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error, no eres el usuario propietario");
+        }
+
     }
 
 
@@ -127,27 +141,33 @@ public class ProductController {
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede eliminar productos
-    public ResponseEntity<Void> deleteProducto(@PathVariable Long id) {
-        if (productoService.deleteProducto(id)) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<String> deleteProducto(@PathVariable Long id) {
+        Optional<ProductEntity> producto = productoRepository.findById(id);
+
+        if (producto.get().getUser().getUsername().equals(userService.obtenerUsuarioPeticion().getUsername())) {
+            if (productoService.deleteProducto(id)) {
+                return ResponseEntity.ok("Producto eliminado exitosamente");
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error, producto no encontrado");
+            }
+        }
+
+        else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error, no eres el usuario propietario");
         }
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> destacarProducto(@PathVariable Long id) {
+    public ResponseEntity<String> destacarProducto(@PathVariable Long id) {
         boolean valor = productoService.featureProduct(id);
 
         if (valor) {
-            return ResponseEntity.ok().build();
-        }
+            return ResponseEntity.ok("Producto destacado exitosamente");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
+   }
 
-        else {
-            return ResponseEntity.notFound().build();
-        }
-
-    }
+}
 
 }
