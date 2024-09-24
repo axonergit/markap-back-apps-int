@@ -1,5 +1,6 @@
 package org.grupo1.markapbe.config;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.grupo1.markapbe.controller.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,21 @@ public class GlobalExceptionHandler {
         String errorMessage = ex.getConstraintViolations().iterator().next().getMessage();
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(errorMessage);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad Request: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGenericException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Not Declared: " + ex.getMessage());
     }
 
 }

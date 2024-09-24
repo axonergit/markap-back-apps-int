@@ -111,6 +111,16 @@ public class ProductService {
         }
     }
 
+    public boolean consumeStock(Long id, int quantity) {
+        ProductEntity producto = productoRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        producto.setStock(producto.getStock() - quantity);
+
+        productoRepository.save(producto);
+
+        return true;
+    }
+
 
     public boolean deleteProducto(Long id) {
         if (productoRepository.existsById(id)) {
