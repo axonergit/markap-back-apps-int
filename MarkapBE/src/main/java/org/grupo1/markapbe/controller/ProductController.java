@@ -14,6 +14,9 @@ import org.grupo1.markapbe.service.ProductService;
 import org.grupo1.markapbe.service.UserService;
 import org.grupo1.markapbe.service.VisitedProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -87,15 +90,21 @@ public class ProductController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
     })
     @GetMapping("/categoria/{id}")
-    public ResponseEntity<List<ProductResponseDTO>> getProductoByIdCategoria(@PathVariable Long id) {
-        List<ProductResponseDTO> productos = productoService.getProductosByIdCategoria(id);
+    public ResponseEntity<Page<ProductResponseDTO>> getProductoByIdCategoria(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductResponseDTO> productos = productoService.getProductosByIdCategoria(id, pageable);
 
         if (productos.isEmpty()) {
             return ResponseEntity.notFound().build(); // Devuelve 404 si no hay productos
         } else {
-            return ResponseEntity.ok(productos); // Devuelve 200 con la lista de productos
+            return ResponseEntity.ok(productos); // Devuelve 200 con la página de productos
         }
     }
+
 
     @Operation(summary = "Crear un nuevo producto",
             description = "Este endpoint permite a un usuario con rol ADMIN crear un nuevo producto.")
@@ -115,7 +124,6 @@ public class ProductController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede actualizar productos
     public ResponseEntity<?> updateProducto(@PathVariable Long id, @RequestBody ProductRequestUpdateDTO productoRequestUpdateDTO) {
-
         ProductResponseDTO updatedProducto = productoService.updateProducto(id, productoRequestUpdateDTO);
         return new ResponseEntity<>(updatedProducto, HttpStatus.OK);
 

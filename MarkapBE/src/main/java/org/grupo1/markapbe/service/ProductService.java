@@ -11,6 +11,9 @@ import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.CategoryRepository;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,13 +64,11 @@ public class ProductService {
     }
 
 
-
-    public List<ProductResponseDTO> getProductosByIdCategoria(Long id) {
-        return productoRepository.findByCategoria_id(id) // Busca los productos por id de categoría
-                .stream() // Convierte la lista a un Stream
-                .map(this::convertToDtoResponse) // Convierte cada ProductEntity a ProductDTO de respuesta
-                .collect(Collectors.toList()); // Junta el resultado en una lista
+    public Page<ProductResponseDTO> getProductosByIdCategoria(Long id, Pageable pageable) {
+        return productoRepository.findByCategoria_id(id, pageable) // Busca los productos por id de categoría con paginación
+                .map(this::convertToDtoResponse); // Convierte cada ProductEntity a ProductDTO de respuesta
     }
+
 
     public List<ProductResponseDTO> getFeaturedproducts() { // obtener productos destacados
         return productoRepository.findByDestacadoTrue() // Busca los productos por campo "destacado" = true
