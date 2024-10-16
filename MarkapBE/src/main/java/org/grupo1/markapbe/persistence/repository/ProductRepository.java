@@ -3,6 +3,8 @@ package org.grupo1.markapbe.persistence.repository;
 import org.grupo1.markapbe.persistence.entity.ProductEntity;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.entity.UserProfileEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -14,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
-    List<ProductEntity> findByCategoria_id(Long idCategoria);
+    Page<ProductEntity> findByCategoria_id(Long idCategoria, Pageable pageable);
 
     List<ProductEntity> findByDestacadoTrue();
 
