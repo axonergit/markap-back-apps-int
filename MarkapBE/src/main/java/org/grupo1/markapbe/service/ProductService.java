@@ -13,7 +13,6 @@ import org.grupo1.markapbe.persistence.repository.CategoryRepository;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +38,6 @@ public class ProductService {
 
     @Autowired
     private ObjectMapper objectMapper;
-
 
 
     public List<CategoryDTO> getAllCategorias() {
@@ -87,10 +85,10 @@ public class ProductService {
 
 
     public ProductResponseDTO createProducto(ProductDTO productoRequestDTO) {
-        CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.categoria().getId())
+        CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.categoria())
                 .orElseThrow(() -> new RuntimeException("Categoria not found"));
         UserEntity userCreador = usuarioService.obtenerUsuarioPeticion();
-        ProductEntity productoCreado = convertToEntity(productoRequestDTO,userCreador, categoria);
+        ProductEntity productoCreado = convertToEntity(productoRequestDTO, userCreador, categoria);
         return convertToDtoResponse(productoRepository.save(productoCreado)); // lo guardamos en la DB
     }
 
@@ -99,7 +97,7 @@ public class ProductService {
 
     public ProductResponseDTO updateProducto(Long id, ProductRequestUpdateDTO productoRequestUpdateDTO) {
         ProductEntity producto = productoRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-        CategoryEntity categoria = categoriaRepository.findById(productoRequestUpdateDTO.categoria().getId())
+        CategoryEntity categoria = categoriaRepository.findById(productoRequestUpdateDTO.categoria())
                 .orElseThrow(() -> new RuntimeException("Categoria not found"));
         UserEntity userCreador = usuarioService.obtenerUsuarioPeticion();
 
@@ -113,9 +111,7 @@ public class ProductService {
             productoRepository.save(producto);
 
             return convertToDtoResponse(producto);
-        }
-
-        else {
+        } else {
             throw new RuntimeException("Usuario no es el propietario del producto");
         }
     }
@@ -152,23 +148,30 @@ public class ProductService {
     }
 
 
-
     private CategoryDTO convertToDto(CategoryEntity categoryEntity) {
-        return new CategoryDTO(categoryEntity.getId(),categoryEntity.getNombreCategoria());
+        return new CategoryDTO(categoryEntity.getId(), categoryEntity.getNombreCategoria());
     }
 
 
     private ProductResponseDTO convertToDtoResponse(ProductEntity producto) {
+        String base64Image = producto.getImagen();
+        if (base64Image != null) {
+            // Asegúrate de que el tipo de archivo coincida, por ejemplo, 'jpeg', 'png', etc.
+            base64Image = "data:image/jpeg;base64," + base64Image;
+        }
+
         return new ProductResponseDTO(
                 producto.getId(),
-                producto.getImagen(),
+                base64Image,
                 producto.getDescripcion(),
                 producto.getPrecio(),
                 producto.getDetalles(),
                 producto.getStock(),
                 producto.getCategoria().getNombreCategoria(),
-                producto.getUser().getUsername());
+                producto.getUser().getUsername()
+        );
     }
+
 
     public ProductEntity convertToEntity(ProductDTO productoRequestDTO, UserEntity user, CategoryEntity categoria) {
         return ProductEntity.builder()
