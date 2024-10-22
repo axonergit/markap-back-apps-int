@@ -7,7 +7,9 @@ import org.grupo1.markapbe.controller.dto.UserProfileDTO.*;
 import org.grupo1.markapbe.controller.dto.UserProfileDTO.UserDetailsResponse;
 import org.grupo1.markapbe.controller.dto.UserProfileDTO.UserProfileUpdateDTO;
 import org.grupo1.markapbe.controller.dto.VisitedProductDTO;
+import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.service.UserProfileService;
+import org.grupo1.markapbe.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +25,37 @@ public class UserProfileController {
     @Autowired
     private UserProfileService userProfileService;
 
+
+    @Autowired
+    private UserService userService;
+
+
     @Operation(summary = "Obtener perfil de usuario",
             description = "Este endpoint permite obtener los detalles del perfil de un usuario a partir de su nombre de usuario.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Detalles del usuario obtenidos exitosamente."),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado con el nombre de usuario especificado.")
     })
-    @GetMapping("/{username}")
+    @GetMapping("/me")
+    public ResponseEntity<UserDetailsResponse> getCurrentUserProfile() {
+        UserEntity user = userService.obtenerUsuarioPeticion();
+        return new ResponseEntity<>(userProfileService.getUserDetails(user.getUsername()), HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "Obtener perfil de usuario",
+            description = "Este endpoint permite obtener los detalles del perfil de un usuario a partir de su nombre de usuario.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Detalles del usuario obtenidos exitosamente."),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado con el nombre de usuario especificado.")
+    })
+    @GetMapping("/user/{username}")
     public ResponseEntity<UserDetailsResponse> getUserProfile(@PathVariable String username) {
         return new ResponseEntity<>(userProfileService.getUserDetails(username), HttpStatus.OK);
     }
+
+
+
 
 
 

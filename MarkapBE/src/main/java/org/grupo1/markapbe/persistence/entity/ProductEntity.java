@@ -22,6 +22,7 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Lob
     @Column(name = "imagen")
     private String imagen;
 
