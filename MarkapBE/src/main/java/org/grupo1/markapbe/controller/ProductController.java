@@ -3,9 +3,11 @@ package org.grupo1.markapbe.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.grupo1.markapbe.controller.dto.CatalogoDTO.CategoryDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductRequestUpdateDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductResponseDTO;
+import org.grupo1.markapbe.persistence.entity.CategoryEntity;
 import org.grupo1.markapbe.persistence.entity.ProductEntity;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
@@ -103,6 +105,12 @@ public class ProductController {
         } else {
             return ResponseEntity.ok(productos); // Devuelve 200 con la página de productos
         }
+    }
+
+    @GetMapping("/categoria")
+    public ResponseEntity<List<CategoryDTO>> getCategorias() {
+
+        return new ResponseEntity<>(productoService.getAllCategorias(),HttpStatus.OK);
     }
 
 

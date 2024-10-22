@@ -2,6 +2,7 @@ package org.grupo1.markapbe.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
+import org.grupo1.markapbe.controller.dto.CatalogoDTO.CategoryDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductRequestUpdateDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductResponseDTO;
@@ -39,6 +40,13 @@ public class ProductService {
     @Autowired
     private ObjectMapper objectMapper;
 
+
+
+    public List<CategoryDTO> getAllCategorias() {
+        return categoriaRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
 
 
     public List<ProductResponseDTO> getAllProductos() {
@@ -143,8 +151,10 @@ public class ProductService {
         return true;
     }
 
-    private ProductDTO convertToDto(ProductEntity producto) {
-        return objectMapper.convertValue(producto, ProductDTO.class);
+
+
+    private CategoryDTO convertToDto(CategoryEntity categoryEntity) {
+        return new CategoryDTO(categoryEntity.getId(),categoryEntity.getNombreCategoria());
     }
 
 
