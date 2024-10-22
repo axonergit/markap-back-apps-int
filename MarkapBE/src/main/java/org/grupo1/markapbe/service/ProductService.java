@@ -2,6 +2,7 @@ package org.grupo1.markapbe.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
+import org.grupo1.markapbe.controller.dto.CatalogoDTO.CategoryDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductRequestUpdateDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductResponseDTO;
@@ -11,6 +12,8 @@ import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.CategoryRepository;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,6 +40,12 @@ public class ProductService {
     private ObjectMapper objectMapper;
 
 
+    public List<CategoryDTO> getAllCategorias() {
+        return categoriaRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
 
     public List<ProductResponseDTO> getAllProductos() {
         return productoRepository.findAll().stream()
@@ -61,13 +70,11 @@ public class ProductService {
     }
 
 
-
-    public List<ProductResponseDTO> getProductosByIdCategoria(Long id) {
-        return productoRepository.findByCategoria_id(id) // Busca los productos por id de categoría
-                .stream() // Convierte la lista a un Stream
-                .map(this::convertToDtoResponse) // Convierte cada ProductEntity a ProductDTO de respuesta
-                .collect(Collectors.toList()); // Junta el resultado en una lista
+    public Page<ProductResponseDTO> getProductosByIdCategoria(Long id, Pageable pageable) {
+        return productoRepository.findByCategoria_id(id, pageable) // Busca los productos por id de categoría con paginación
+                .map(this::convertToDtoResponse); // Convierte cada ProductEntity a ProductDTO de respuesta
     }
+
 
     public List<ProductResponseDTO> getFeaturedproducts() { // obtener productos destacados
         return productoRepository.findByDestacadoTrue() // Busca los productos por campo "destacado" = true
@@ -78,10 +85,10 @@ public class ProductService {
 
 
     public ProductResponseDTO createProducto(ProductDTO productoRequestDTO) {
-        CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.categoria().getId())
+        CategoryEntity categoria = categoriaRepository.findById(productoRequestDTO.categoria())
                 .orElseThrow(() -> new RuntimeException("Categoria not found"));
         UserEntity userCreador = usuarioService.obtenerUsuarioPeticion();
-        ProductEntity productoCreado = convertToEntity(productoRequestDTO,userCreador, categoria);
+        ProductEntity productoCreado = convertToEntity(productoRequestDTO, userCreador, categoria);
         return convertToDtoResponse(productoRepository.save(productoCreado)); // lo guardamos en la DB
     }
 
@@ -90,7 +97,7 @@ public class ProductService {
 
     public ProductResponseDTO updateProducto(Long id, ProductRequestUpdateDTO productoRequestUpdateDTO) {
         ProductEntity producto = productoRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-        CategoryEntity categoria = categoriaRepository.findById(productoRequestUpdateDTO.categoria().getId())
+        CategoryEntity categoria = categoriaRepository.findById(productoRequestUpdateDTO.categoria())
                 .orElseThrow(() -> new RuntimeException("Categoria not found"));
         UserEntity userCreador = usuarioService.obtenerUsuarioPeticion();
 
@@ -104,9 +111,7 @@ public class ProductService {
             productoRepository.save(producto);
 
             return convertToDtoResponse(producto);
-        }
-
-        else {
+        } else {
             throw new RuntimeException("Usuario no es el propietario del producto");
         }
     }
@@ -123,7 +128,9 @@ public class ProductService {
 
 
     public boolean deleteProducto(Long id) {
-        if (productoRepository.existsById(id)) {
+        ProductEntity producto = productoRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        UserEntity userCreador = usuarioService.obtenerUsuarioPeticion();
+        if (producto.getUser() == userCreador) {
             productoRepository.deleteById(id);
             return true;
         }
@@ -140,22 +147,31 @@ public class ProductService {
         return true;
     }
 
-    private ProductDTO convertToDto(ProductEntity producto) {
-        return objectMapper.convertValue(producto, ProductDTO.class);
+
+    private CategoryDTO convertToDto(CategoryEntity categoryEntity) {
+        return new CategoryDTO(categoryEntity.getId(), categoryEntity.getNombreCategoria());
     }
 
 
     private ProductResponseDTO convertToDtoResponse(ProductEntity producto) {
+        String base64Image = producto.getImagen();
+        if (base64Image != null) {
+            // Asegúrate de que el tipo de archivo coincida, por ejemplo, 'jpeg', 'png', etc.
+            base64Image = "data:image/jpeg;base64," + base64Image;
+        }
+
         return new ProductResponseDTO(
                 producto.getId(),
-                producto.getImagen(),
+                base64Image,
                 producto.getDescripcion(),
                 producto.getPrecio(),
                 producto.getDetalles(),
                 producto.getStock(),
                 producto.getCategoria().getNombreCategoria(),
-                producto.getUser().getUsername());
+                producto.getUser().getUsername()
+        );
     }
+
 
     public ProductEntity convertToEntity(ProductDTO productoRequestDTO, UserEntity user, CategoryEntity categoria) {
         return ProductEntity.builder()

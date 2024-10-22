@@ -87,9 +87,8 @@ public class CarritoController {
             response.put("message", "Error al Actualizar: "+e);
             response.put("carrito", carritoService.getCarritoDTO(carritoId));
             carritoService.updateExistingStockItems();
-        } finally {
-            return ResponseEntity.ok(response);
         }
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Obtener historial de carritos pagados",
@@ -156,14 +155,15 @@ public class CarritoController {
     public ResponseEntity<?> removeItem(@PathVariable Long productId,
                                         @RequestParam(defaultValue = "1") int amount) {
         Map<String, Object> response = new HashMap<>();
+
         if (carritoService.removeItemFromCarrito(productId, amount))
             response.put("message", "Se quito "+amount+" productos del Carrito.");
-        CarritoDTO carritoDTO = carritoService.getActiveCarritoDTO();
-        if (!carritoService.existItemsIntoCarrito(carritoDTO.id())
-                && carritoService.deleteCarrito(carritoDTO)) //Esta vacio;
-            response.put("carrito", "null");
-        else
+        try {
+            CarritoDTO carritoDTO = carritoService.getActiveCarritoDTO();
             response.put("carrito", carritoDTO);
+        } catch (Exception e) {
+            response.put("carrito", "null");
+        }
         return ResponseEntity.ok(response);
     }
 }

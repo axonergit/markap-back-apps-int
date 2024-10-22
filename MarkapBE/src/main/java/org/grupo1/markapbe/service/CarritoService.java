@@ -17,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -71,15 +70,6 @@ public class CarritoService {
         return itemsCarritoEntity.map(itemsCarritoEntities -> itemsCarritoEntities
                 .map(this::convertToDTO))
                 .orElseGet(Page::empty);
-    }
-
-
-    public boolean deleteCarrito(CarritoDTO carritoDTO) {
-        CarritoEntity carrito = getCarrito(carritoDTO.id());
-        if (itemsCarritoRepository.existsById(carrito.getId()))
-            itemsCarritoRepository.deleteAllByCarritoId(carrito.getId());
-        carritoRepository.delete(carrito);
-        return true;
     }
 
     public boolean addItemToCarrito(Long productId, int amount) {
@@ -142,7 +132,7 @@ public class CarritoService {
         return itemsCarritoRepository.existsByCarritoId(carritoId);
     }
 
-    public boolean updateExistingStockItems() {
+    public void updateExistingStockItems() {
         CarritoEntity carrito = getActiveCarrito();
         List<ItemsCarritoEntity> allItems = itemsCarritoRepository.getItemsCarritoEntitiesByCarrito(carrito);
         for (ItemsCarritoEntity item : allItems) {
@@ -153,7 +143,6 @@ public class CarritoService {
                 removeItemFromCarrito(productId, diff);
             }
         }
-        return true;
     }
 
     //Funciones Privadas: Trabaja con la Entidades, Manteniendo el Encapsulamiento.
