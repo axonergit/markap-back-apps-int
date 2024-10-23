@@ -3,6 +3,7 @@ package org.grupo1.markapbe.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.CategoryDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductRequestUpdateDTO;
@@ -115,7 +116,7 @@ public class ProductController {
 
 
     @Operation(summary = "Crear un nuevo producto",
-            description = "Este endpoint permite a un usuario con rol ADMIN crear un nuevo producto.")
+            description = "Este endpoint permite a un usuario con rol ADMIN crear un nuevo producto.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto creado exitosamente."),
             @ApiResponse(responseCode = "400", description = "Solicitud inválida. Verifique los datos ingresados."),
@@ -144,6 +145,9 @@ public class ProductController {
         return ResponseEntity.ok(producto);
     }
 
+
+
+    @Operation(summary = "Actualizar un producto ya creado",security = @SecurityRequirement(name = "BearerAuth"))
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede actualizar productos
     public ResponseEntity<?> updateProducto(@PathVariable Long id,@RequestParam("imagen") MultipartFile imagen,
@@ -168,7 +172,7 @@ public class ProductController {
 
     //revisar
     @Operation(summary = "Eliminar un producto",
-            description = "Este endpoint permite a un usuario con rol ADMIN eliminar un producto existente mediante su ID.")
+            description = "Este endpoint permite a un usuario con rol ADMIN eliminar un producto existente mediante su ID.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto eliminado exitosamente."),
             @ApiResponse(responseCode = "404", description = "Producto no encontrado con el ID especificado."),
@@ -185,6 +189,7 @@ public class ProductController {
     }
 
 
+    @Operation(summary = "Destacar un producto para que aparezca en el slider principal",security = @SecurityRequirement(name = "BearerAuth"))
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> destacarProducto(@PathVariable Long id) {

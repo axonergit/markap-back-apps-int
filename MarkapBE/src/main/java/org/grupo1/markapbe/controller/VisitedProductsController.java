@@ -3,6 +3,7 @@ package org.grupo1.markapbe.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.grupo1.markapbe.controller.dto.VisitedProductDTO;
 import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
@@ -28,7 +29,7 @@ public class VisitedProductsController {
     private VisitedProductService visitedProductService;
 
     @Operation(summary = "Obtener productos visitados",
-            description = "Este endpoint devuelve una lista de productos visitados por el usuario, paginada por página.")
+            description = "Este endpoint devuelve una lista de productos visitados por el usuario, paginada por página.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de productos visitados obtenida exitosamente."),
             @ApiResponse(responseCode = "404", description = "No se encontraron productos visitados para el usuario.")
@@ -39,7 +40,7 @@ public class VisitedProductsController {
     }
 
     @Operation(summary = "Obtener todos los productos visitados",
-            description = "Este endpoint devuelve una lista de todos los productos visitados por el usuario.")
+            description = "Este endpoint devuelve una lista de todos los productos visitados por el usuario.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de productos visitados obtenida exitosamente."),
             @ApiResponse(responseCode = "404", description = "No se encontraron productos visitados para el usuario.")
