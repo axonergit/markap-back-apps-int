@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.grupo1.markapbe.controller.dto.CarritoDTO.CarritoDTO;
 import org.grupo1.markapbe.controller.dto.CarritoDTO.ItemsCarritoDTO;
 import org.grupo1.markapbe.controller.dto.ErrorResponseDTO;
@@ -25,7 +26,7 @@ public class CarritoController {
 
     @Operation(
             summary = "Obtener carrito activo",
-            description = "Este endpoint devuelve el carrito activo del usuario autenticado. Si no existe un carrito activo, lanza una excepción."
+            description = "Este endpoint devuelve el carrito activo del usuario autenticado. Si no existe un carrito activo, lanza una excepción.",security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Carrito activo encontrado",
@@ -45,7 +46,7 @@ public class CarritoController {
     }
 
     @Operation(summary = "Obtener todos los items del carrito activo",
-            description = "Este endpoint retorna los items del carrito de compras activo del usuario logueado, paginados.")
+            description = "Este endpoint retorna los items del carrito de compras activo del usuario logueado, paginados.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Items obtenidos con éxito",
                     content = @Content(mediaType = "application/json",
@@ -65,7 +66,7 @@ public class CarritoController {
     }
 
     @Operation(summary = "Actualizar el estado del carrito a 'pagado'",
-            description = "Este endpoint permite actualizar el estado del carrito activo del usuario a 'pagado'.")
+            description = "Este endpoint permite actualizar el estado del carrito activo del usuario a 'pagado'.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Estado de carrito actualizado correctamente",
                     content = { @Content(mediaType = "application/json",
@@ -92,7 +93,7 @@ public class CarritoController {
     }
 
     @Operation(summary = "Obtener historial de carritos pagados",
-            description = "Este endpoint permite obtener una lista de carritos que han sido pagados por el usuario.")
+            description = "Este endpoint permite obtener una lista de carritos que han sido pagados por el usuario.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de carritos pagados devuelta correctamente",
                     content = { @Content(mediaType = "application/json",
@@ -107,7 +108,7 @@ public class CarritoController {
     }
 
     @Operation(summary = "Obtener items de un carrito específico",
-            description = "Este endpoint permite obtener todos los items de un carrito dado su ID, paginando los resultados.")
+            description = "Este endpoint permite obtener todos los items de un carrito dado su ID, paginando los resultados.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Items del carrito devueltos correctamente",
                     content = { @Content(mediaType = "application/json",
@@ -127,7 +128,7 @@ public class CarritoController {
     }
 
     @Operation(summary = "Añadir un producto al carrito",
-            description = "Añade una cantidad especificada de un producto al carrito activo del usuario.")
+            description = "Añade una cantidad especificada de un producto al carrito activo del usuario.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto añadido al carrito exitosamente."),
             @ApiResponse(responseCode = "400", description = "Error de entrada, como stock insuficiente o producto no encontrado."),
@@ -145,7 +146,7 @@ public class CarritoController {
     }
 
     @Operation(summary = "Eliminar un producto del carrito",
-            description = "Elimina una cantidad especificada de un producto del carrito activo del usuario. Si el carrito queda vacío, se elimina el carrito.")
+            description = "Elimina una cantidad especificada de un producto del carrito activo del usuario. Si el carrito queda vacío, se elimina el carrito.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto eliminado del carrito exitosamente."),
             @ApiResponse(responseCode = "400", description = "Error de entrada, como cantidad insuficiente para eliminar o producto no encontrado."),

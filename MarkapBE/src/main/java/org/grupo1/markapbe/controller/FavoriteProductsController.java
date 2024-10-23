@@ -4,6 +4,7 @@ package org.grupo1.markapbe.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.grupo1.markapbe.service.FavoriteProductService;
@@ -26,7 +27,7 @@ public class FavoriteProductsController {
     private UserRepository userRepository;
 
     @Operation(summary = "Añadir un producto a favoritos",
-            description = "Permite al usuario añadir un producto a su lista de favoritos.")
+            description = "Permite al usuario añadir un producto a su lista de favoritos.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto añadido a favoritos correctamente."),
             @ApiResponse(responseCode = "404", description = "Producto no encontrado.")
@@ -38,7 +39,7 @@ public class FavoriteProductsController {
     }
 
     @Operation(summary = "Obtener productos favoritos",
-            description = "Devuelve la lista de productos que el usuario ha marcado como favoritos.")
+            description = "Devuelve la lista de productos que el usuario ha marcado como favoritos.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de productos favoritos devuelta correctamente."),
             @ApiResponse(responseCode = "404", description = "No existen favoritos para el usuario.")
@@ -50,7 +51,7 @@ public class FavoriteProductsController {
     }
 
     @Operation(summary = "Eliminar producto de favoritos",
-            description = "Elimina un producto de la lista de favoritos del usuario.")
+            description = "Elimina un producto de la lista de favoritos del usuario.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "El producto ha sido eliminado de la lista de favoritos."),
             @ApiResponse(responseCode = "404", description = "El producto no está en la lista de favoritos.")
