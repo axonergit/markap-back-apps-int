@@ -3,12 +3,12 @@ INSERT INTO permissions (name) VALUES
                                    ('CREATE'),
                                    ('READ'),
                                    ('DELETE'),
-                                   ('SUSCRIBE') ON CONFLICT (name) DO NOTHING;
+                                   ('SUSCRIBE');
 
 -- Inserta roles
 INSERT INTO roles (role_name) VALUES
                                   ('USUARIO'),
-                                  ('ADMIN') ON CONFLICT (role_name) DO NOTHING;
+                                  ('ADMIN');
 
 -- Asigna permisos a roles
 INSERT INTO role_permissions (role_id, permission_id)
