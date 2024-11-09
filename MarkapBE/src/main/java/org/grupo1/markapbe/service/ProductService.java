@@ -71,7 +71,7 @@ public class ProductService {
 
 
     public Page<ProductResponseDTO> getProductosByIdCategoria(Long id, Pageable pageable) {
-        return productoRepository.findByCategoria_id(id, pageable) // Busca los productos por id de categoría con paginación
+        return productoRepository.findByCategoria_Id(id, pageable) // Busca los productos por id de categoría con paginación
                 .map(this::convertToDtoResponse); // Convierte cada ProductEntity a ProductDTO de respuesta
     }
 

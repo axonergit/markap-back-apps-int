@@ -101,11 +101,9 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductResponseDTO> productos = productoService.getProductosByIdCategoria(id, pageable);
 
-        if (productos.isEmpty()) {
-            return ResponseEntity.notFound().build(); // Devuelve 404 si no hay productos
-        } else {
+
             return ResponseEntity.ok(productos); // Devuelve 200 con la página de productos
-        }
+
     }
 
     @GetMapping("/categoria")
