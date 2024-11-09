@@ -29,6 +29,12 @@ SELECT (SELECT id FROM users WHERE username = 'master') AS user_id, (SELECT id F
 INSERT INTO user_roles (user_id, role_id)
 SELECT (SELECT id FROM users WHERE username = 'usuario') AS user_id, (SELECT id FROM roles WHERE role_name = 'USUARIO') AS role_id;
 
+INSERT INTO user_profile (birth_date,email,last_name,name,user_id)
+VALUES ( '2004-11-09','eladmin@mail.com','Admin','El',1 );
+
+INSERT INTO user_profile (birth_date,email,last_name,name,user_id)
+VALUES ( '2004-11-09','elusuario@mail.com','Usuario','El',2 );
+
 
 
 
