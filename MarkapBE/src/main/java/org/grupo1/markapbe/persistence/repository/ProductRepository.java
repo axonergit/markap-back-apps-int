@@ -16,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
-    Page<ProductEntity> findByCategoria_id(Long idCategoria, Pageable pageable);
+    Page<ProductEntity> findByCategoria_Id(Long idCategoria, Pageable pageable);
 
     List<ProductEntity> findByDestacadoTrue();
 
