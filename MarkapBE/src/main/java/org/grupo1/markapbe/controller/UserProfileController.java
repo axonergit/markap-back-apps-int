@@ -3,6 +3,7 @@ package org.grupo1.markapbe.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.grupo1.markapbe.controller.dto.UserProfileDTO.*;
 import org.grupo1.markapbe.controller.dto.UserProfileDTO.UserDetailsResponse;
 import org.grupo1.markapbe.controller.dto.UserProfileDTO.UserProfileUpdateDTO;
@@ -31,7 +32,7 @@ public class UserProfileController {
 
 
     @Operation(summary = "Obtener perfil de usuario",
-            description = "Este endpoint permite obtener los detalles del perfil de un usuario a partir de su nombre de usuario.")
+            description = "Este endpoint permite obtener los detalles del perfil de un usuario a partir de su nombre de usuario.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Detalles del usuario obtenidos exitosamente."),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado con el nombre de usuario especificado.")
@@ -44,7 +45,7 @@ public class UserProfileController {
 
 
     @Operation(summary = "Obtener perfil de usuario",
-            description = "Este endpoint permite obtener los detalles del perfil de un usuario a partir de su nombre de usuario.")
+            description = "Este endpoint permite obtener los detalles del perfil de un usuario a partir de su nombre de usuario.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Detalles del usuario obtenidos exitosamente."),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado con el nombre de usuario especificado.")

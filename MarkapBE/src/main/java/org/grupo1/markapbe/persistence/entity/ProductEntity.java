@@ -22,8 +22,7 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Lob
-    @Column(name = "imagen")
+    @Column(name = "imagen", columnDefinition = "TEXT")
     private String imagen;
 
     @Column(name = "descripcion")

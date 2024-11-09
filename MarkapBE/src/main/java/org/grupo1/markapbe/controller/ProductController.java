@@ -3,13 +3,11 @@ package org.grupo1.markapbe.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.CategoryDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductRequestUpdateDTO;
 import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductResponseDTO;
-import org.grupo1.markapbe.persistence.entity.CategoryEntity;
-import org.grupo1.markapbe.persistence.entity.ProductEntity;
-import org.grupo1.markapbe.persistence.entity.UserEntity;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.grupo1.markapbe.service.ProductService;
@@ -22,11 +20,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-
-import java.security.Principal;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,7 +80,9 @@ public class ProductController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
     })
     @GetMapping("/destacados")
-    public List<ProductResponseDTO> getFeaturedProducts() {return productoService.getFeaturedproducts();}
+    public List<ProductResponseDTO> getFeaturedProducts() {
+        return productoService.getFeaturedproducts();
+    }
 
 
     @Operation(summary = "Obtener productos por categoría",
@@ -100,39 +101,68 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductResponseDTO> productos = productoService.getProductosByIdCategoria(id, pageable);
 
-        if (productos.isEmpty()) {
-            return ResponseEntity.notFound().build(); // Devuelve 404 si no hay productos
-        } else {
+
             return ResponseEntity.ok(productos); // Devuelve 200 con la página de productos
-        }
+
     }
 
     @GetMapping("/categoria")
     public ResponseEntity<List<CategoryDTO>> getCategorias() {
 
-        return new ResponseEntity<>(productoService.getAllCategorias(),HttpStatus.OK);
+        return new ResponseEntity<>(productoService.getAllCategorias(), HttpStatus.OK);
     }
 
 
     @Operation(summary = "Crear un nuevo producto",
-            description = "Este endpoint permite a un usuario con rol ADMIN crear un nuevo producto.")
+            description = "Este endpoint permite a un usuario con rol ADMIN crear un nuevo producto.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto creado exitosamente."),
             @ApiResponse(responseCode = "400", description = "Solicitud inválida. Verifique los datos ingresados."),
             @ApiResponse(responseCode = "401", description = "No autorizado. El usuario no tiene el rol adecuado."),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
     })
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductResponseDTO> createProducto(@RequestBody ProductDTO productoRequestDTO, Principal principal) {
+    public ResponseEntity<ProductResponseDTO> createProducto(
+            @RequestParam("imagen") MultipartFile imagen,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("precio") BigDecimal precio,
+            @RequestParam("detalles") String detalles,
+            @RequestParam("stock") int stock,
+            @RequestParam("categoria") long categoria) {
+
+        String imagenBase64 = null;
+        try {
+            imagenBase64 = Base64.getEncoder().encodeToString(imagen.getBytes());
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        ProductDTO productoRequestDTO = new ProductDTO(imagenBase64, descripcion, precio, detalles, stock, categoria);
         ProductResponseDTO producto = productoService.createProducto(productoRequestDTO);
         return ResponseEntity.ok(producto);
     }
 
+
+
+    @Operation(summary = "Actualizar un producto ya creado",security = @SecurityRequirement(name = "BearerAuth"))
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Solo admin puede actualizar productos
-    public ResponseEntity<?> updateProducto(@PathVariable Long id, @RequestBody ProductRequestUpdateDTO productoRequestUpdateDTO) {
-        ProductResponseDTO updatedProducto = productoService.updateProducto(id, productoRequestUpdateDTO);
+    public ResponseEntity<?> updateProducto(@PathVariable Long id,@RequestParam("imagen") MultipartFile imagen,
+                                            @RequestParam("descripcion") String descripcion,
+                                            @RequestParam("precio") BigDecimal precio,
+                                            @RequestParam("detalles") String detalles,
+                                            @RequestParam("stock") int stock,
+                                            @RequestParam("categoria") long categoria) {
+
+        String imagenBase64 = null;
+        try {
+            imagenBase64 = Base64.getEncoder().encodeToString(imagen.getBytes());
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        ProductRequestUpdateDTO updateRequestDTO = new ProductRequestUpdateDTO(imagenBase64, descripcion, precio, detalles, stock, categoria);
+        ProductResponseDTO updatedProducto = productoService.updateProducto(id, updateRequestDTO);
         return new ResponseEntity<>(updatedProducto, HttpStatus.OK);
 
     }
@@ -140,7 +170,7 @@ public class ProductController {
 
     //revisar
     @Operation(summary = "Eliminar un producto",
-            description = "Este endpoint permite a un usuario con rol ADMIN eliminar un producto existente mediante su ID.")
+            description = "Este endpoint permite a un usuario con rol ADMIN eliminar un producto existente mediante su ID.",security = @SecurityRequirement(name = "BearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto eliminado exitosamente."),
             @ApiResponse(responseCode = "404", description = "Producto no encontrado con el ID especificado."),
@@ -157,6 +187,7 @@ public class ProductController {
     }
 
 
+    @Operation(summary = "Destacar un producto para que aparezca en el slider principal",security = @SecurityRequirement(name = "BearerAuth"))
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> destacarProducto(@PathVariable Long id) {
@@ -166,8 +197,8 @@ public class ProductController {
             return ResponseEntity.ok("Producto destacado exitosamente");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
-   }
+        }
 
-}
+    }
 
 }
