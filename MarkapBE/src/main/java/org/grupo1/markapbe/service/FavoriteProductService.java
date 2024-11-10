@@ -50,6 +50,11 @@ public class FavoriteProductService {
     }
 
     private ProductDTO convertToDto(ProductEntity producto) {
+        String base64Image = producto.getImagen();
+        if (base64Image != null) {
+            // Asegúrate de que el tipo de archivo coincida, por ejemplo, 'jpeg', 'png', etc.
+            producto.setImagen("data:image/jpeg;base64," + base64Image);
+        }
         return objectMapper.convertValue(producto,ProductDTO.class);
     }
 
