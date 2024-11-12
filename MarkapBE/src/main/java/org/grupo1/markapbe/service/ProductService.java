@@ -55,16 +55,17 @@ public class ProductService {
 
     public Optional<ProductResponseDTO> getProductoById(Long id) {
         Optional<ProductEntity> producto = productoRepository.findById(id);
-        try {
-            UserEntity usuario = usuarioService.obtenerUsuarioPeticion();
 
-            if (producto.isPresent()) {
+        if (producto.isPresent()) {
+            try {
+                UserEntity usuario = usuarioService.obtenerUsuarioPeticion();
                 visitedProductService.createVisitedProduct(producto.get());
-                return Optional.of(convertToDtoResponse(producto.get()));
-            } else {
-                return Optional.empty();
+            } catch (EntityNotFoundException e) {
+                // Loguear o manejar el error del usuario si es necesario, pero continuar.
             }
-        } catch (EntityNotFoundException e) {
+
+            return Optional.of(convertToDtoResponse(producto.get()));
+        } else {
             return Optional.empty();
         }
     }
