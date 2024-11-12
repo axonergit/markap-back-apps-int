@@ -105,6 +105,7 @@ public class ProductService {
         if (producto.getUser() == userCreador) {
             producto.setImagen(productoRequestUpdateDTO.imagen());
             producto.setDescripcion(productoRequestUpdateDTO.descripcion());
+            producto.setDetalles(productoRequestUpdateDTO.detalles());
             producto.setPrecio(productoRequestUpdateDTO.precio());
             producto.setStock(productoRequestUpdateDTO.stock());
             producto.setCategoria(categoria);
