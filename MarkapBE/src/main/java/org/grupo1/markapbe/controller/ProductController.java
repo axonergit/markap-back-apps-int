@@ -82,7 +82,7 @@ public class ProductController {
     }
 
 
-    @PostMapping("/")
+    @PostMapping("/search")
     public ResponseEntity<Page<ProductResponseDTO>> searchProducts(
             @RequestBody SearchByNameDTO searchByNameDTO,
             @RequestParam(defaultValue = "0") int page,
