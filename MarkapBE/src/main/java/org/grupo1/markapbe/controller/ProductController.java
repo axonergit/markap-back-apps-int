@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.grupo1.markapbe.controller.dto.CatalogoDTO.CategoryDTO;
-import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductDTO;
-import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductRequestUpdateDTO;
-import org.grupo1.markapbe.controller.dto.CatalogoDTO.ProductResponseDTO;
+import org.grupo1.markapbe.controller.dto.CatalogoDTO.*;
 import org.grupo1.markapbe.persistence.repository.ProductRepository;
 import org.grupo1.markapbe.persistence.repository.UserRepository;
 import org.grupo1.markapbe.service.ProductService;
@@ -82,6 +79,20 @@ public class ProductController {
     @GetMapping("/destacados")
     public List<ProductResponseDTO> getFeaturedProducts() {
         return productoService.getFeaturedproducts();
+    }
+
+
+    @PostMapping("/")
+    public ResponseEntity<Page<ProductResponseDTO>> searchProducts(
+            @RequestBody SearchByNameDTO searchByNameDTO,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        String nombre = searchByNameDTO.nombre();
+        Page<ProductResponseDTO> productos = productoService.getSearchedProducts(nombre, pageable);
+
+        return ResponseEntity.ok(productos); // Devuelve 200 con la página de productos
     }
 
 

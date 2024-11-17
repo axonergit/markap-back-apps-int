@@ -53,6 +53,13 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+
+    public Page<ProductResponseDTO> getSearchedProducts(String nombre, Pageable pageable) {
+        return productoRepository.findByDescripcionContainingIgnoreCase(nombre, pageable)
+                .map(this::convertToDtoResponse);
+    }
+
+
     public Optional<ProductResponseDTO> getProductoById(Long id) {
         Optional<ProductEntity> producto = productoRepository.findById(id);
 
@@ -61,7 +68,7 @@ public class ProductService {
                 UserEntity usuario = usuarioService.obtenerUsuarioPeticion();
                 visitedProductService.createVisitedProduct(producto.get());
             } catch (EntityNotFoundException e) {
-                // Loguear o manejar el error del usuario si es necesario, pero continuar.
+
             }
 
             return Optional.of(convertToDtoResponse(producto.get()));
@@ -77,7 +84,7 @@ public class ProductService {
     }
 
 
-    public List<ProductResponseDTO> getFeaturedproducts() { // obtener productos destacados
+    public List<ProductResponseDTO> getFeaturedproducts() {
         return productoRepository.findByDestacadoTrue() // Busca los productos por campo "destacado" = true
                 .stream()
                 .map(this::convertToDtoResponse)
@@ -90,7 +97,7 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Categoria not found"));
         UserEntity userCreador = usuarioService.obtenerUsuarioPeticion();
         ProductEntity productoCreado = convertToEntity(productoRequestDTO, userCreador, categoria);
-        return convertToDtoResponse(productoRepository.save(productoCreado)); // lo guardamos en la DB
+        return convertToDtoResponse(productoRepository.save(productoCreado));
     }
 
 
