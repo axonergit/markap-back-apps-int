@@ -1,10 +1,13 @@
 name: Build and Push Docker Image to Docker Hub
 
 on:
-  workflow_dispatch:   # Activador manual
+  workflow_dispatch:  # Activador manual
+  push:
+    branches:
+      - main  # También se ejecutará en cada push a main
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -12,37 +15,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Paso 2: Configurar Docker
+      # Paso 2: Configurar Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Paso 3: Instalar Docker Compose
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version  # Verificar que docker-compose está instalado correctamente
-
-      # Paso 4: Iniciar sesión en Docker Hub
+      # Paso 3: Iniciar sesión en Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}  # Usando el secreto DOCKER_USERNAME
-          password: ${{ secrets.DOCKER_PASSWORD }}  # Usando el secreto DOCKER_PASSWORD
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Paso 5: Construir la imagen de Docker desde el docker-compose.yml
+      # Paso 4: Construir y etiquetar las imágenes desde el archivo docker-compose.yml
       - name: Build Docker Compose images
         run: |
+          export IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest
           docker-compose -f docker-compose.yml build
+          docker tag backend $IMAGE_TAG  # Etiquetar la imagen del backend como `markap-full`
 
-      # Paso 6: Etiquetar la imagen construida con el nombre de Docker Hub
-      - name: Tag image
-        run: |
-          IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest  # Usando el nombre de usuario desde el secreto
-          docker tag markap_backend $IMAGE_TAG
-
-      # Paso 7: Subir la imagen a Docker Hub
+      # Paso 5: Subir la imagen principal al Docker Hub
       - name: Push image to Docker Hub
         run: |
-          IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest  # Usando el nombre de usuario desde el secreto
+          export IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest
           docker push $IMAGE_TAG
+
+      # Paso 6 (Opcional): Verificar que la imagen se subió correctamente
+      - name: Verify Docker Image
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/markap-full:latest
+          docker images
