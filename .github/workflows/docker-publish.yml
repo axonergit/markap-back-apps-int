@@ -16,25 +16,32 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Paso 3: Iniciar sesión en Docker Hub
+      # Paso 3: Instalar Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version  # Verificar que docker-compose está instalado correctamente
+
+      # Paso 4: Iniciar sesión en Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}  # Usando el secreto DOCKER_USERNAME
           password: ${{ secrets.DOCKER_PASSWORD }}  # Usando el secreto DOCKER_PASSWORD
 
-      # Paso 4: Construir la imagen de Docker desde el docker-compose.yml
+      # Paso 5: Construir la imagen de Docker desde el docker-compose.yml
       - name: Build Docker Compose images
         run: |
           docker-compose -f docker-compose.yml build
 
-      # Paso 5: Etiquetar la imagen construida con el nombre de Docker Hub
+      # Paso 6: Etiquetar la imagen construida con el nombre de Docker Hub
       - name: Tag image
         run: |
           IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest  # Usando el nombre de usuario desde el secreto
           docker tag markap_backend $IMAGE_TAG
 
-      # Paso 6: Subir la imagen a Docker Hub
+      # Paso 7: Subir la imagen a Docker Hub
       - name: Push image to Docker Hub
         run: |
           IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest  # Usando el nombre de usuario desde el secreto
