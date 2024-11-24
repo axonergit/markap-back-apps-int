@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,5 +20,9 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     Page<ProductEntity> findByCategoria_Id(Long idCategoria, Pageable pageable);
 
     List<ProductEntity> findByDestacadoTrue();
+
+    Page<ProductEntity> findByDescripcionContainingIgnoreCase(String nombre, Pageable pageable);
+
+    /*Page<ProductEntity> findByPrecioBetween(BigDecimal minPrice, BigDecimal maxPrice); // para tener en cuenta */
 
 }
