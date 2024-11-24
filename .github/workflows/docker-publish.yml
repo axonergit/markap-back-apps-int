@@ -31,11 +31,11 @@ jobs:
       # Paso 5: Etiquetar la imagen construida con el nombre de Docker Hub
       - name: Tag image
         run: |
-          IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap:latest  # Usando el nombre de usuario desde el secreto
+          IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest  # Usando el nombre de usuario desde el secreto
           docker tag markap_backend $IMAGE_TAG
 
       # Paso 6: Subir la imagen a Docker Hub
       - name: Push image to Docker Hub
         run: |
-          IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap:latest  # Usando el nombre de usuario desde el secreto
+          IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest  # Usando el nombre de usuario desde el secreto
           docker push $IMAGE_TAG
