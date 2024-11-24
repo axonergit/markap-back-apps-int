@@ -1,0 +1,41 @@
+name: Build and Push Docker Image to Docker Hub
+
+on:
+  workflow_dispatch:   # Activador manual
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Checkout del código del repositorio
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Paso 2: Configurar Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Paso 3: Iniciar sesión en Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Usando el secreto DOCKER_USERNAME
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Usando el secreto DOCKER_PASSWORD
+
+      # Paso 4: Construir la imagen de Docker desde el docker-compose.yml
+      - name: Build Docker Compose images
+        run: |
+          docker-compose -f docker-compose.yml build
+
+      # Paso 5: Etiquetar la imagen construida con el nombre de Docker Hub
+      - name: Tag image
+        run: |
+          IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap:latest  # Usando el nombre de usuario desde el secreto
+          docker tag markap_backend $IMAGE_TAG
+
+      # Paso 6: Subir la imagen a Docker Hub
+      - name: Push image to Docker Hub
+        run: |
+          IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap:latest  # Usando el nombre de usuario desde el secreto
+          docker push $IMAGE_TAG
