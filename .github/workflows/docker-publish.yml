@@ -33,21 +33,20 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Paso 5: Construir y etiquetar las imágenes desde el archivo docker-compose.yml
+          # Paso 5: Construir y etiquetar las imágenes desde el archivo docker-compose.yml
       - name: Build Docker Compose images
         run: |
-          export IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest
           docker-compose -f docker-compose.yml build
-          docker tag backend $IMAGE_TAG  # Etiquetar la imagen del backend como `markap-full`
 
-      # Paso 6: Subir la imagen principal al Docker Hub
+      # Paso 6: Etiquetar la imagen del backend
+      - name: Tag backend image
+        run: |
+          export IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest
+          docker tag backend:latest $IMAGE_TAG
+
+      # Paso 7: Subir la imagen principal al Docker Hub
       - name: Push image to Docker Hub
         run: |
           export IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/markap-full:latest
           docker push $IMAGE_TAG
 
-      # Paso 7 (Opcional): Verificar que la imagen se subió correctamente
-      - name: Verify Docker Image
-        run: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/markap-full:latest
-          docker images

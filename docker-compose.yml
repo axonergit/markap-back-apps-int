@@ -7,24 +7,25 @@ services:
       POSTGRES_DB: markapdb
       POSTGRES_USER: root
       POSTGRES_PASSWORD: 1234
-    # Exponer puertos solo en local, no en la nube
     ports:
-      - "5432:5432"  # Solo en local
+      - "5432:5432"
     networks:
       - backend-network
 
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile  # Asegúrate de que este nombre sea correcto
+    image: backend:latest  # Asigna un nombre explícito a la imagen
     depends_on:
       - postgres
     environment:
-      # Usa una variable de entorno para la URL de conexión de la base de datos
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/markapdb}
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
       SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
     ports:
-      - "8080:8080"  # Exponer solo en local si es necesario
+      - "8080:8080"
     networks:
       - backend-network
 
@@ -34,7 +35,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "3000:80"  # Exponer solo en local si es necesario
+      - "3000:80"
     networks:
       - backend-network
 
