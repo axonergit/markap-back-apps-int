@@ -1,8 +1,10 @@
 package org.grupo1.markapbe.config;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.grupo1.markapbe.controller.dto.ErrorResponseDTO;
+import org.grupo1.markapbe.util.CustomJwtException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -85,5 +87,11 @@ public class GlobalExceptionHandler {
         System.out.println(ex.getClass().toString());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Not Declared: " + ex.getMessage());
     }
+
+    @ExceptionHandler(CustomJwtException.class)
+    public ResponseEntity<String> handleCustomJwtException(CustomJwtException ex) {
+        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(ex.getMessage());
+    }
+
 
 }

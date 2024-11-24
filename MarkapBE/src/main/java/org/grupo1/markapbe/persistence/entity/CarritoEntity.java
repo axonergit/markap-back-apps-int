@@ -3,7 +3,9 @@ package org.grupo1.markapbe.persistence.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 @Entity
@@ -26,4 +28,10 @@ public class CarritoEntity {
     @JsonIgnore
     @JoinColumn(name = "userId", nullable = false)
     private UserEntity User;
+
+
+    @UpdateTimestamp
+    @Column(name = "fechaPagado")
+    private Timestamp updatedAt;
+
 }

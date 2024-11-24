@@ -50,12 +50,11 @@ public class JwtUtils {
         try{
             Algorithm algorithm = Algorithm.HMAC512(this.privateKey);
             JWTVerifier verifier = JWT.require(algorithm).withIssuer(this.userGenerator).build();
-
             DecodedJWT decodedJWT = verifier.verify(token);
             return  decodedJWT;
         }
         catch (JWTVerificationException exception){
-            throw new JWTVerificationException(("Token invalid, not Authorized"));
+            throw new CustomJwtException("Token invalid, not authorized");
         }
 
     }
