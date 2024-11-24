@@ -8,8 +8,8 @@ services:
       POSTGRES_PASSWORD: 1234
     ports:
       - "5432:5432"
-  app:
-    build: .  # Esto indica que Docker debe construir la imagen usando el Dockerfile en el directorio actual
+  backend:
+    build: .
     depends_on:
       - postgres
     environment:
@@ -19,3 +19,11 @@ services:
       SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
     ports:
       - "8080:8080"
+
+  frontend:
+    image: sebyex/markap:latest
+    container_name: markap
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"  # Mapea el puerto 80 del contenedor al puerto 3000 local
