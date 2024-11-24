@@ -3,8 +3,11 @@ package org.grupo1.markapbe.controller.dto.CarritoDTO;
 import jakarta.validation.constraints.NotBlank;
 import org.grupo1.markapbe.persistence.entity.ItemsCarritoEntity;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 public record CarritoDTO(
         @NotBlank(message = "Debe tener ID.") Long id,
-        boolean paymentStatus) {}
+        boolean paymentStatus,
+        Timestamp updatedAt
+        ) {}
