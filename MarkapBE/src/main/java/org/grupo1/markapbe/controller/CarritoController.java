@@ -59,7 +59,7 @@ public class CarritoController {
     @GetMapping("/actual/items")
     public ResponseEntity<?> getAllItemsFromCarritoActivo(
             @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "5") int size) {
+            @RequestParam(defaultValue = "20") int size) {
         CarritoDTO carritoDTO = carritoService.getActiveCarritoDTO();
         Page<ItemsCarritoDTO> itemsCarrito = carritoService.getAllItemsByCarritoDTO(carritoDTO, pagina, size);
         return ResponseEntity.ok(itemsCarrito);
