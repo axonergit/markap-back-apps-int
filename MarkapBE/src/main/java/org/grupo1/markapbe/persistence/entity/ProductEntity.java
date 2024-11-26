@@ -25,7 +25,7 @@ public class ProductEntity {
     @Column(name = "imagen", columnDefinition = "TEXT")
     private String imagen;
 
-    @Column(name = "descripcion")
+    @Column(name = "descripcion",unique = true)
     private String descripcion;
 
     @Column(name = "precio")

@@ -36,7 +36,7 @@ INSERT INTO user_profile (birth_date,email,last_name,name,user_id)
 VALUES ( '2004-11-09','elusuario@mail.com','Usuario','El',2 );
 
 
-
+IF NOT EXISTS (SELECT * from Categories)
 
 INSERT INTO Categories (nombre_categoria) VALUES ('Figuras de Acción');
 INSERT INTO Categories (nombre_categoria) VALUES ('Cómics y Mangas');

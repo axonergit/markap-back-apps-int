@@ -20,7 +20,7 @@ public class CategoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nombre_categoria")
+    @Column(name = "nombre_categoria",unique = true)
     private String nombreCategoria;
 
 
